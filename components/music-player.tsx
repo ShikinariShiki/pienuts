@@ -9,19 +9,19 @@ import { useMusicPlayer } from "@/hooks/use-music-player"
 
 const songs = [
   {
-    title: "Kawaii Melody",
-    artist: "Cute Artist",
-    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+    title: "七時の食事(Chocolate Lemon)",
+    artist: "Mitsukiyo",
+    src: "track1.mp3",
   },
   {
-    title: "Pastel Dreams",
-    artist: "Sweet Tunes",
-    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+    title: "九時のミルフィーユ",
+    artist: "Mitsukiyo",
+    src: "track2.mp3",
   },
   {
-    title: "Pink Clouds",
-    artist: "Fluffy Beats",
-    src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+    title: "Salty Moon",
+    artist: "Hoyo-Mix",
+    src: "track3.mp3",
   },
 ]
 
