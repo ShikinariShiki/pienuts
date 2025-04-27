@@ -4,12 +4,14 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { fetchUserData } from "@/lib/api"
+import { fetchUserData, fetchRecentMessages } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
+import { MusicPlayer } from "@/components/music-player"
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null)
+  const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showHearts, setShowHearts] = useState(false)
@@ -18,8 +20,9 @@ export default function Home() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const data = await fetchUserData()
-        setUserData(data)
+        const [userData, messagesData] = await Promise.all([fetchUserData(), fetchRecentMessages()])
+        setUserData(userData)
+        setMessages(messagesData.slice(0, 3)) // Show only 3 recent messages
         setError(null)
       } catch (err) {
         setError("Failed to load data. Please try again!")
@@ -57,6 +60,7 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
       {showHearts && <FloatingHearts />}
+      <MusicPlayer />
 
       <motion.div
         className="card w-full max-w-2xl p-6"
@@ -79,7 +83,9 @@ export default function Home() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.4 }}
           >
-            Click on the tabs above to explore different sections! (◕‿◕✿)
+            <span className="inline-block mx-1">✿</span>
+            Click on the tabs above to explore!
+            <span className="inline-block mx-1">✿</span>
           </motion.p>
         </div>
 
@@ -95,7 +101,7 @@ export default function Home() {
               onClick={handleHeartClick}
             >
               <Image
-                src="pia.jpeg"
+                src="/images/profile.png"
                 alt="Profile"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"
@@ -105,6 +111,11 @@ export default function Home() {
                 initial={{ opacity: 0 }}
                 whileHover={{ opacity: 1 }}
               />
+              <div className="absolute bottom-0 left-0 right-0 p-4 text-white text-center">
+                <div className="bg-pink-400/70 backdrop-blur-sm rounded-full px-4 py-1 inline-block">
+                  <span className="text-sm font-medium">♡ Click me! ♡</span>
+                </div>
+              </div>
             </div>
 
             <motion.div
@@ -113,10 +124,10 @@ export default function Home() {
               transition={{ type: "spring", stiffness: 400, damping: 10 }}
             >
               <Link href="/profile" className="block">
-                <div className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl text-center hover:shadow-md transition-shadow">
+                <div className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl text-center hover:shadow-md transition-shadow border-2 border-pink-200 dark:border-pink-800/30">
                   <p className="text-sm font-medium text-pink-700 dark:text-pink-300">
                     <span className="font-bold">View Profile</span>
-                    <span className="text-pink-400 dark:text-pink-200">!</span>
+                    <span className="text-pink-400 dark:text-pink-200"> ♡</span>
                   </p>
                 </div>
               </Link>
@@ -129,56 +140,94 @@ export default function Home() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ delay: 0.5, type: "spring" }}
           >
-            <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl hover:shadow-md transition-shadow"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 10 }}
-            >
-              <Link href="/dni" className="block">
-                <p className="text-sm font-medium text-pink-700 dark:text-pink-300">
-                  <span className="font-bold">DNI</span>
-                  <span className="text-pink-400 dark:text-pink-200">!</span> Click to see details
-                </p>
+            <div className="grid grid-cols-3 gap-3 mb-4">
+              <Link href="/dni">
+                <motion.div
+                  className="bg-pink-100 dark:bg-[#2d2d42] p-3 rounded-xl text-center hover:shadow-md transition-shadow border-2 border-pink-200 dark:border-pink-800/30"
+                  whileHover={{ y: -5, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                >
+                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-1">
+                    <span className="text-pink-600 dark:text-pink-300 text-lg">✘</span>
+                  </div>
+                  <p className="text-xs font-bold text-pink-700 dark:text-pink-300">DNI</p>
+                </motion.div>
               </Link>
-            </motion.div>
+
+              <Link href="/byf">
+                <motion.div
+                  className="bg-pink-100 dark:bg-[#2d2d42] p-3 rounded-xl text-center hover:shadow-md transition-shadow border-2 border-pink-200 dark:border-pink-800/30"
+                  whileHover={{ y: -5, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                >
+                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-1">
+                    <span className="text-pink-600 dark:text-pink-300 text-lg">♡</span>
+                  </div>
+                  <p className="text-xs font-bold text-pink-700 dark:text-pink-300">BYF</p>
+                </motion.div>
+              </Link>
+
+              <Link href="/favs">
+                <motion.div
+                  className="bg-pink-100 dark:bg-[#2d2d42] p-3 rounded-xl text-center hover:shadow-md transition-shadow border-2 border-pink-200 dark:border-pink-800/30"
+                  whileHover={{ y: -5, scale: 1.03 }}
+                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
+                >
+                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-1">
+                    <span className="text-pink-600 dark:text-pink-300 text-lg">★</span>
+                  </div>
+                  <p className="text-xs font-bold text-pink-700 dark:text-pink-300">FAVS</p>
+                </motion.div>
+              </Link>
+            </div>
 
             <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl hover:shadow-md transition-shadow"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 10 }}
+              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl border-2 border-pink-200 dark:border-pink-800/30"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.7 }}
             >
-              <Link href="/byf" className="block">
-                <p className="text-sm font-medium text-pink-700 dark:text-pink-300">
-                  <span className="font-bold">BYF</span>
-                  <span className="text-pink-400 dark:text-pink-200">!</span> Click to see details
-                </p>
-              </Link>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300">
+                  Recent Messages <span className="text-pink-400">♡</span>
+                </h3>
+                <Link href="/messages">
+                  <span className="text-xs text-pink-500 hover:underline">View All</span>
+                </Link>
+              </div>
+
+              <div className="space-y-2">
+                {messages.length > 0 ? (
+                  messages.map((msg, index) => (
+                    <motion.div
+                      key={msg.id}
+                      className="bg-white dark:bg-[#1a1a2e] p-2 rounded-lg text-xs text-pink-700 dark:text-pink-300 border border-pink-100 dark:border-[#2d2d42]"
+                      initial={{ opacity: 0, x: -10 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ delay: 0.8 + index * 0.1 }}
+                    >
+                      {msg.message}
+                      <div className="text-right text-pink-400 text-[10px] mt-1">{msg.date}</div>
+                    </motion.div>
+                  ))
+                ) : (
+                  <p className="text-center text-xs text-pink-400">No messages yet!</p>
+                )}
+              </div>
             </motion.div>
 
-            <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl hover:shadow-md transition-shadow"
-              whileHover={{ y: -5 }}
-              transition={{ type: "spring", stiffness: 300, damping: 10 }}
-            >
-              <Link href="/favs" className="block">
-                <p className="text-sm font-medium text-pink-700 dark:text-pink-300">
-                  <span className="font-bold">FAVS</span>
-                  <span className="text-pink-400 dark:text-pink-200">!</span> Click to see favorites
-                </p>
+            <div className="flex justify-center mt-2">
+              <Link href="/messages">
+                <motion.button
+                  className="button px-6 py-2 text-pink-600 dark:text-pink-300 font-medium flex items-center space-x-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  transition={{ type: "spring", stiffness: 400, damping: 10 }}
+                >
+                  <span>Send Message</span>
+                  <span className="text-lg">✉</span>
+                </motion.button>
               </Link>
-            </motion.div>
-
-            <div className="flex justify-center mt-6">
-              <motion.button
-                className="button px-6 py-2.5 text-pink-600 dark:text-pink-300 font-medium flex items-center space-x-2"
-                onClick={handleHeartClick}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                transition={{ type: "spring", stiffness: 400, damping: 10 }}
-              >
-                <span className="heartbeat">⭐</span>
-                <span>Send Love</span>
-              </motion.button>
             </div>
           </motion.div>
         </div>

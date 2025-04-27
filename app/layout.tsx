@@ -2,8 +2,7 @@ import type React from "react"
 import "./globals.css"
 import { Poppins } from "next/font/google"
 import type { Metadata } from "next"
-import { TaskBar } from "@/components/task-bar"
-import { PageTransition } from "@/components/page-transition"
+import { MusicPlayerProvider } from "@/hooks/use-music-player"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -28,8 +27,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
       <body className={poppins.className}>
-        <TaskBar />
-        <PageTransition>{children}</PageTransition>
+        <MusicPlayerProvider>{children}</MusicPlayerProvider>
       </body>
     </html>
   )

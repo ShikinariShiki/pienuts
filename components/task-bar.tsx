@@ -3,22 +3,24 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Heart, Home, User, X, Maximize2, Minimize2, Moon, Sun, CakeSlice } from "lucide-react"
+import { Home, User, X, Moon, Sun, Music } from "lucide-react"
 import { motion } from "framer-motion"
+import { useMusicPlayer } from "@/hooks/use-music-player"
 
 const pages = [
   { path: "/", label: "Home", icon: <Home className="w-4 h-4" /> },
   { path: "/profile", label: "Profile", icon: <User className="w-4 h-4" /> },
   { path: "/dni", label: "DNI", icon: <X className="w-4 h-4" /> },
-  { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" /> },
-  { path: "/favs", label: "FAVS", icon: <Heart className="w-4 h-4 fill-current" /> },
+  { path: "/byf", label: "BYF", icon: <span className="text-xs">♡</span> },
+  { path: "/favs", label: "FAVS", icon: <span className="text-xs">★</span> },
+  { path: "/messages", label: "Messages", icon: <span className="text-xs">✉</span> },
 ]
 
 export function TaskBar() {
   const pathname = usePathname()
   const [isDarkTheme, setIsDarkTheme] = useState(false)
-  const [isMaximized, setIsMaximized] = useState(false)
   const [time, setTime] = useState("")
+  const { isPlaying, togglePlay } = useMusicPlayer()
 
   useEffect(() => {
     const updateTime = () => {
@@ -36,36 +38,26 @@ export function TaskBar() {
     document.body.classList.toggle("dark-theme")
   }
 
-  const toggleMaximize = () => {
-    setIsMaximized(!isMaximized)
-    document.body.classList.toggle("maximized")
-  }
-
-  const createConfetti = () => {
-    for (let i = 0; i < 50; i++) {
-      const confetti = document.createElement("div")
-      confetti.className = "confetti"
+  const createHearts = () => {
+    for (let i = 0; i < 15; i++) {
+      const heart = document.createElement("div")
+      heart.className = "floating-heart"
+      heart.innerHTML = ["♥", "♡", "✿", "✨", "★"][Math.floor(Math.random() * 5)]
 
       // Random position
-      confetti.style.left = Math.random() * 100 + "vw"
-
-      // Random size
-      const size = Math.random() * 10 + 5
-      confetti.style.width = size + "px"
-      confetti.style.height = size + "px"
+      heart.style.left = Math.random() * 100 + "vw"
+      heart.style.animationDuration = Math.random() * 3 + 2 + "s"
+      heart.style.fontSize = Math.random() * 20 + 10 + "px"
 
       // Random color
       const colors = ["#ffb6c1", "#ff8fab", "#ff66a3", "#ff4d94", "#ff3385"]
-      confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)]
+      heart.style.color = colors[Math.floor(Math.random() * colors.length)]
 
-      // Random shape
-      confetti.style.borderRadius = Math.random() > 0.5 ? "50%" : "0"
-
-      document.body.appendChild(confetti)
+      document.body.appendChild(heart)
 
       // Remove after animation
       setTimeout(() => {
-        confetti.remove()
+        heart.remove()
       }, 5000)
     }
   }
@@ -73,7 +65,7 @@ export function TaskBar() {
   return (
     <>
       <motion.div
-        className="taskbar fixed top-0 left-0 right-0 z-50 bg-white/80 dark:bg-[#16213e]/90 backdrop-blur-md border-b border-pink-200 dark:border-[#2d2d42] shadow-sm"
+        className="taskbar fixed top-0 left-0 right-0 z-50 bg-pink-50/90 dark:bg-[#16213e]/90 backdrop-blur-md border-b border-pink-200 dark:border-[#2d2d42] shadow-sm"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -120,11 +112,20 @@ export function TaskBar() {
             <div className="flex items-center space-x-3">
               <motion.button
                 className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
-                onClick={createConfetti}
+                onClick={createHearts}
                 whileHover={{ scale: 1.1, rotate: 10 }}
                 whileTap={{ scale: 0.9 }}
               >
-                <CakeSlice className="w-4 h-4" />
+                <span className="text-lg">✿</span>
+              </motion.button>
+
+              <motion.button
+                className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
+                onClick={togglePlay}
+                whileHover={{ scale: 1.1, rotate: 10 }}
+                whileTap={{ scale: 0.9 }}
+              >
+                <Music className={`w-4 h-4 ${isPlaying ? "text-pink-500" : ""}`} />
               </motion.button>
 
               <motion.button
@@ -134,15 +135,6 @@ export function TaskBar() {
                 whileTap={{ scale: 0.9 }}
               >
                 {isDarkTheme ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
-              </motion.button>
-
-              <motion.button
-                className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
-                onClick={toggleMaximize}
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.9 }}
-              >
-                {isMaximized ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </motion.button>
 
               <div className="taskbar-time text-xs text-pink-600 dark:text-pink-400 font-medium">{time}</div>

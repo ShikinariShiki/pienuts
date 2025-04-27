@@ -13,8 +13,7 @@ export async function fetchUserData() {
     name: "PIEN",
     age: 19,
     tags: ["Artist", "Gamer", "Otaku", "Music Lover", "Foodie"],
-    profileImage:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    profileImage: "/images/profile.png",
   }
 }
 
@@ -33,8 +32,7 @@ export async function fetchUserProfile() {
       "I don't like spicy food, horror movies, rainy days when I have to go out, and when my internet is slow while gaming.",
     other:
       "I'm a digital artist who loves to create cute illustrations. My dream is to publish my own manga one day! I also enjoy collecting stationery and plushies.",
-    profileImage:
-      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60",
+    profileImage: "/images/profile.png",
     tags: ["Artist", "Gamer", "Otaku", "Music Lover", "Foodie"],
   }
 }
@@ -106,9 +104,49 @@ export async function fetchFavsData() {
   }
 }
 
+export async function fetchRecentMessages() {
+  // Simulate API request
+  await delay(800)
+
+  // Return mock data
+  return [
+    {
+      id: 1,
+      message: "Your art is so cute! I love your style so much! ♡",
+      date: "2023-11-15",
+    },
+    {
+      id: 2,
+      message: "Can you teach me how to draw like you? I'm a big fan!",
+      date: "2023-11-14",
+    },
+    {
+      id: 3,
+      message: "I saw your cosplay photos, they're amazing! What's your next costume?",
+      date: "2023-11-12",
+    },
+    {
+      id: 4,
+      message: "Do you play Genshin Impact? What's your UID?",
+      date: "2023-11-10",
+    },
+    {
+      id: 5,
+      message: "Your kawaii style is so inspiring! Keep up the great work!",
+      date: "2023-11-08",
+    },
+  ]
+}
+
+export async function fetchAllMessages() {
+  // Get all messages including recent ones
+  const messages = await fetchRecentMessages()
+  return messages
+}
+
 export async function sendUserMessage(message: string) {
   // Simulate API request
-  await delay(500)
+  await delay(1000)
 
   // In a real app, this would send the message to a server
   console.log("Message sent to API:", message)
