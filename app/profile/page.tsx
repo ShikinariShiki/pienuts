@@ -104,7 +104,7 @@ export default function ProfilePage() {
               whileHover={{ scale: 1.03 }}
               transition={{ type: "spring", stiffness: 300, damping: 20 }}
             >
-              <Image src="/images/profile.png" alt="Profile" fill className="object-cover" />
+              <Image src="/images/profile.jpeg" alt="Profile" fill className="object-cover" />
               <motion.div
                 className="absolute inset-0 bg-gradient-to-t from-pink-500/30 to-transparent"
                 initial={{ opacity: 0 }}
