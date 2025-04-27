@@ -95,7 +95,7 @@ export default function Home() {
               onClick={handleHeartClick}
             >
               <Image
-                src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?ixlib=rb-1.2.1&auto=format&fit=crop&w=500&q=60"
+                src="pia.jpeg"
                 alt="Profile"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"
