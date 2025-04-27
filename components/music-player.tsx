@@ -11,17 +11,17 @@ const songs = [
   {
     title: "七時の食事(Chocolate Lemon)",
     artist: "Mitsukiyo",
-    src: "track1.mp3",
+    src: "/music/track1.mp3",
   },
   {
     title: "九時のミルフィーユ",
     artist: "Mitsukiyo",
-    src: "track2.mp3",
+    src: "/music/track2.mp3",
   },
   {
     title: "Salty Moon",
     artist: "Hoyo-Mix",
-    src: "track3.mp3",
+    src: "/music/track3.mp3",
   },
 ]
 
