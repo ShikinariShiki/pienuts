@@ -101,7 +101,7 @@ export default function Home() {
               onClick={handleHeartClick}
             >
               <Image
-                src="/images/profile.png"
+                src="/images/profile.jpeg"
                 alt="Profile"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"
