@@ -65,16 +65,20 @@ export function MusicPlayer() {
   return (
     <AnimatePresence>
       <motion.div
-        className={`fixed bottom-4 left-4 z-50 ${expanded ? "w-72 sm:w-80" : "w-12"} bg-white dark:bg-[#16213e] rounded-xl shadow-lg overflow-hidden border-2 border-pink-200 dark:border-pink-800/30 music-player`}
+        className={`fixed bottom-16 md:bottom-4 right-4 z-50 ${
+          expanded ? "w-72 sm:w-80" : "w-12"
+        } bg-white dark:bg-[#16213e] rounded-xl shadow-lg overflow-hidden border-2 border-pink-200 dark:border-pink-800/30 music-player`}
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.5, type: "spring" }}
+        transition={{ delay: 0.3, duration: 0.3, type: "spring" }}
       >
         <div className="absolute top-0 right-0 bottom-0 left-0 bg-gradient-to-br from-pink-100/50 to-transparent dark:from-pink-900/10 pointer-events-none" />
 
         <div className="flex items-center p-2">
           <motion.button
-            className={`w-8 h-8 rounded-full flex items-center justify-center ${isPlaying ? "bg-pink-400 text-white" : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"}`}
+            className={`w-8 h-8 rounded-full flex items-center justify-center ${
+              isPlaying ? "bg-pink-400 text-white" : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"
+            }`}
             onClick={togglePlay}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
@@ -89,6 +93,7 @@ export function MusicPlayer() {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -20 }}
+              transition={{ duration: 0.2 }}
             >
               <p className="text-xs font-medium text-pink-700 dark:text-pink-300 truncate">
                 {songs[currentSongIndex].title}
@@ -114,6 +119,7 @@ export function MusicPlayer() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.2 }}
           >
             {error && (
               <div className="bg-pink-50 dark:bg-[#2d2d42] p-2 rounded-lg mb-2 text-xs text-pink-600 dark:text-pink-300 flex items-center justify-between">
@@ -145,7 +151,11 @@ export function MusicPlayer() {
 
             <div className="flex justify-between mb-3">
               <motion.button
-                className={`w-7 h-7 rounded-full flex items-center justify-center ${isShuffling ? "bg-pink-400 text-white" : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"}`}
+                className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                  isShuffling
+                    ? "bg-pink-400 text-white"
+                    : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"
+                }`}
                 onClick={toggleShuffle}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -167,7 +177,11 @@ export function MusicPlayer() {
               </motion.button>
 
               <motion.button
-                className={`w-9 h-9 rounded-full flex items-center justify-center ${isPlaying ? "bg-pink-400 text-white" : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"}`}
+                className={`w-9 h-9 rounded-full flex items-center justify-center ${
+                  isPlaying
+                    ? "bg-pink-400 text-white"
+                    : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"
+                }`}
                 onClick={togglePlay}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -189,7 +203,11 @@ export function MusicPlayer() {
               </motion.button>
 
               <motion.button
-                className={`w-7 h-7 rounded-full flex items-center justify-center ${isLooping ? "bg-pink-400 text-white" : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"}`}
+                className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                  isLooping
+                    ? "bg-pink-400 text-white"
+                    : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"
+                }`}
                 onClick={toggleLoop}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -222,6 +240,7 @@ export function MusicPlayer() {
                       initial={{ opacity: 0, y: 10 }}
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
+                      transition={{ duration: 0.2 }}
                       onMouseLeave={() => setShowVolumeSlider(false)}
                       onTouchEnd={() => setShowVolumeSlider(false)}
                     >
@@ -241,7 +260,11 @@ export function MusicPlayer() {
               </div>
 
               <motion.button
-                className={`w-7 h-7 rounded-full flex items-center justify-center ${showQueue ? "bg-pink-400 text-white" : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"}`}
+                className={`w-7 h-7 rounded-full flex items-center justify-center ${
+                  showQueue
+                    ? "bg-pink-400 text-white"
+                    : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"
+                }`}
                 onClick={toggleQueue}
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
@@ -259,6 +282,7 @@ export function MusicPlayer() {
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: "auto" }}
                   exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.2 }}
                 >
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-xs font-bold text-pink-600 dark:text-pink-300">Queue</h4>

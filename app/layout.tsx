@@ -3,8 +3,7 @@ import "./globals.css"
 import { Poppins } from "next/font/google"
 import type { Metadata } from "next"
 import { MusicPlayerProvider } from "@/hooks/use-music-player"
-import { TaskBar } from "@/components/task-bar"
-import { PageTransition } from "@/components/page-transition"
+import { SplashScreen } from "@/components/splash-screen"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -24,15 +23,15 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
       <body className={poppins.className}>
         <MusicPlayerProvider>
-          <TaskBar />
-          <PageTransition>{children}</PageTransition>
+          <SplashScreen />
+          {children}
         </MusicPlayerProvider>
       </body>
     </html>

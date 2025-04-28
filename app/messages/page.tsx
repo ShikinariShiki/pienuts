@@ -19,8 +19,21 @@ export default function MessagesPage() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const data = await fetchAllMessages()
-        setMessages(data)
+
+        // Try to get messages from localStorage first
+        const storedMessages = localStorage.getItem("pien_messages")
+
+        if (storedMessages) {
+          setMessages(JSON.parse(storedMessages))
+        } else {
+          // If no stored messages, fetch from API
+          const data = await fetchAllMessages()
+          setMessages(data)
+
+          // Store in localStorage
+          localStorage.setItem("pien_messages", JSON.stringify(data))
+        }
+
         setError(null)
       } catch (err) {
         setError("Failed to load messages. Please try again!")
@@ -47,7 +60,12 @@ export default function MessagesPage() {
         date: new Date().toLocaleDateString(),
       }
 
-      setMessages([newMsg, ...messages])
+      const updatedMessages = [newMsg, ...messages]
+      setMessages(updatedMessages)
+
+      // Update localStorage
+      localStorage.setItem("pien_messages", JSON.stringify(updatedMessages))
+
       setNewMessage("")
       setShowNotification(true)
 
@@ -76,8 +94,11 @@ export default function MessagesPage() {
     return (
       <div className="min-h-screen flex items-center justify-center p-4">
         <div className="card w-full max-w-md p-6 text-center">
-          <p className="text-pink-600 mb-4">{error}</p>
-          <button className="button px-4 py-2 text-pink-600 font-medium" onClick={() => window.location.reload()}>
+          <p className="text-pink-600 dark:text-pink-300 mb-4">{error}</p>
+          <button
+            className="button px-4 py-2 text-pink-600 dark:text-pink-300 font-medium"
+            onClick={() => window.location.reload()}
+          >
             Try Again
           </button>
         </div>
@@ -89,33 +110,33 @@ export default function MessagesPage() {
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
       <motion.div
         className="card w-full max-w-2xl p-6"
-        initial={{ scale: 0.9, opacity: 0 }}
+        initial={{ scale: 0.98, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 400, damping: 30 }}
+        transition={{ duration: 0.3 }}
       >
         <motion.h1
-          className="text-3xl font-bold text-pink-600 mb-2 text-center"
-          initial={{ y: -20 }}
+          className="text-3xl font-bold text-pink-600 dark:text-pink-300 mb-2 text-center"
+          initial={{ y: -10 }}
           animate={{ y: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          transition={{ duration: 0.3 }}
         >
-          Messages <span className="text-pink-400">♡</span>
+          Messages <span className="text-pink-400 dark:text-pink-200">♡</span>
         </motion.h1>
 
         <motion.p
-          className="text-center text-gray-500 mb-6"
+          className="text-center text-gray-500 dark:text-gray-400 mb-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.3 }}
+          transition={{ duration: 0.3, delay: 0.1 }}
         >
           Send me an anonymous message!
         </motion.p>
 
         <motion.div
           className="mb-8"
-          initial={{ y: 20, opacity: 0 }}
+          initial={{ y: 10, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.4 }}
+          transition={{ duration: 0.3, delay: 0.2 }}
         >
           <div className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl border-2 border-pink-200 dark:border-pink-800/30">
             <textarea
@@ -151,14 +172,14 @@ export default function MessagesPage() {
           className="divider mb-6"
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
-          transition={{ delay: 0.5 }}
+          transition={{ duration: 0.3, delay: 0.3 }}
         />
 
         <motion.h2
-          className="text-xl font-bold text-pink-600 mb-4"
+          className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.6 }}
+          transition={{ duration: 0.3, delay: 0.4 }}
         >
           Recent Messages
         </motion.h2>
@@ -169,16 +190,16 @@ export default function MessagesPage() {
               <motion.div
                 key={msg.id}
                 className="bg-white dark:bg-[#1a1a2e] p-4 rounded-xl text-pink-700 dark:text-pink-300 border border-pink-100 dark:border-[#2d2d42] shadow-sm"
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.7 + index * 0.1 }}
+                transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
               >
                 <p className="mb-2">{msg.message}</p>
-                <div className="text-right text-pink-400 text-xs">{msg.date}</div>
+                <div className="text-right text-pink-400 dark:text-pink-300 text-xs">{msg.date}</div>
               </motion.div>
             ))
           ) : (
-            <p className="text-center text-pink-400">No messages yet! Be the first to send one.</p>
+            <p className="text-center text-pink-400 dark:text-pink-300">No messages yet! Be the first to send one.</p>
           )}
         </div>
 

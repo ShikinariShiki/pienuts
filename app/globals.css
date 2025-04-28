@@ -13,14 +13,49 @@
   --pink-700: #e60073;
   --pink-800: #cc0066;
   --pink-900: #b30059;
+
+  --background: #fff0f3;
+  --foreground: #333333;
+  --card-bg: #ffffff;
+  --card-border: rgba(255, 138, 191, 0.3);
+  --card-shadow: rgba(255, 138, 191, 0.2);
+}
+
+.dark {
+  --pink-50: #2d2d42;
+  --pink-100: #3d3d5a;
+  --pink-200: #4d4d6a;
+  --pink-300: #6d6d8a;
+  --pink-400: #8d8daa;
+  --pink-500: #adaaca;
+  --pink-600: #cdcaea;
+  --pink-700: #ededff;
+  --pink-800: #f5f5ff;
+  --pink-900: #ffffff;
+
+  --background: #1a1a2e;
+  --foreground: #f0f0f0;
+  --card-bg: #16213e;
+  --card-border: rgba(61, 61, 90, 0.3);
+  --card-shadow: rgba(0, 0, 0, 0.3);
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   font-family: "Poppins", sans-serif;
-  background-color: var(--pink-50);
+  background-color: var(--background);
   background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffb6c1' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='%23ff66a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 5v14'%3E%3C/path%3E%3Cpath d='M5 12h14'%3E%3C/path%3E%3C/svg%3E"),
     auto;
+  color: var(--foreground);
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.dark body {
+  background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233d3d5a' fill-opacity='0.1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
 }
 
 .page-transition {
@@ -30,11 +65,11 @@ body {
 }
 
 .card {
-  background: linear-gradient(145deg, #ffffff 0%, #fff0f5 100%);
+  background: linear-gradient(145deg, var(--card-bg) 0%, var(--card-bg) 100%);
   border-radius: 24px;
-  box-shadow: 0 10px 30px rgba(255, 138, 191, 0.2);
+  box-shadow: 0 10px 30px var(--card-shadow);
   backdrop-filter: blur(5px);
-  border: 1px solid rgba(255, 255, 255, 0.3);
+  border: 1px solid var(--card-border);
   transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease;
   position: relative;
   overflow: hidden;
@@ -47,7 +82,7 @@ body {
   left: 0;
   right: 0;
   height: 5px;
-  background: linear-gradient(90deg, #ff66a3, #ffb6c1, #ff66a3);
+  background: linear-gradient(90deg, var(--pink-400), var(--pink-200), var(--pink-400));
   background-size: 200% 100%;
   animation: shimmer 3s infinite linear;
   border-top-left-radius: 24px;
@@ -64,7 +99,7 @@ body {
 }
 
 .card:hover {
-  box-shadow: 0 15px 35px rgba(255, 138, 191, 0.25);
+  box-shadow: 0 15px 35px var(--card-shadow);
 }
 
 .divider {
@@ -78,7 +113,7 @@ body {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   background: linear-gradient(145deg, var(--pink-100), var(--pink-200));
   border-radius: 12px;
-  box-shadow: 0 4px 8px rgba(255, 138, 191, 0.2);
+  box-shadow: 0 4px 8px var(--card-shadow);
   position: relative;
   overflow: hidden;
   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='24' height='24' viewBox='0 0 24 24' fill='%23ff66a3' stroke='%23ff66a3' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z'%3E%3C/path%3E%3C/svg%3E"),
@@ -110,7 +145,7 @@ body {
 
 .button:hover {
   transform: translateY(-3px);
-  box-shadow: 0 6px 12px rgba(255, 138, 191, 0.3);
+  box-shadow: 0 6px 12px var(--card-shadow);
 }
 
 .button:active {
@@ -135,12 +170,12 @@ body {
 
 .gallery-img:hover {
   transform: scale(1.05);
-  box-shadow: 0 8px 16px rgba(255, 138, 191, 0.3);
+  box-shadow: 0 8px 16px var(--card-shadow);
 }
 
 .profile-img {
   border-radius: 20px;
-  box-shadow: 0 8px 20px rgba(255, 138, 191, 0.3);
+  box-shadow: 0 8px 20px var(--card-shadow);
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
   cursor: pointer;
 }
@@ -397,53 +432,6 @@ input[type="range"]::-moz-range-thumb:hover {
   transform: scale(1.2);
 }
 
-/* Dark theme styles */
-body.dark-theme {
-  background-color: #1a1a2e;
-  background-image: none;
-}
-
-.dark-theme .card {
-  background: linear-gradient(145deg, #16213e 0%, #1a1a2e 100%);
-  border: 1px solid #2d2d42;
-  color: #e2e8f0;
-}
-
-.dark-theme .bg-pink-50 {
-  background-color: #2d2d42;
-}
-
-/* Add the rest of the dark theme styles that were missing */
-.dark-theme .text-pink-600,
-.dark-theme .text-pink-700 {
-  color: #f8a5c2;
-}
-
-.dark-theme .text-pink-400 {
-  color: #f78fb3;
-}
-
-.dark-theme .divider {
-  background: linear-gradient(90deg, transparent, #f78fb3, transparent);
-}
-
-.dark-theme .button {
-  background: linear-gradient(145deg, #2d2d42, #3d3d5a);
-  color: #f8a5c2;
-}
-
-.dark-theme .tag {
-  background-color: #3d3d5a;
-  color: #f8a5c2;
-}
-
-.dark-theme input,
-.dark-theme textarea {
-  background-color: #2d2d42;
-  color: white;
-  border-color: #3d3d5a;
-}
-
 /* Responsive design improvements */
 @media (max-width: 768px) {
   .card {
@@ -476,18 +464,15 @@ body.dark-theme {
     padding: 0.5rem;
   }
 
-  .taskbar-tab span {
-    display: none;
+  .music-player {
+    bottom: 16px !important;
+    right: 16px !important;
   }
 }
 
 @media (max-width: 640px) {
   .card {
     padding: 1rem;
-  }
-
-  .grid {
-    grid-template-columns: 1fr;
   }
 
   .profile-img {
@@ -507,4 +492,31 @@ body.dark-theme {
 
 .taskbar-button {
   transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* Fade animations */
+.fade-in {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fade-out {
+  animation: fadeOut 0.3s ease-in-out;
+}
+
+@keyframes fadeOut {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }

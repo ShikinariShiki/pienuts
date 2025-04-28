@@ -3,17 +3,18 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, User, X, Moon, Sun, Music } from "lucide-react"
+import { Home, User, X, Moon, Sun, Music, Heart, Star, MessageSquare } from "lucide-react"
 import { motion } from "framer-motion"
 import { useMusicPlayer } from "@/hooks/use-music-player"
+import { MobileMenu } from "./mobile-menu"
 
 const pages = [
   { path: "/", label: "Home", icon: <Home className="w-4 h-4" /> },
   { path: "/profile", label: "Profile", icon: <User className="w-4 h-4" /> },
   { path: "/dni", label: "DNI", icon: <X className="w-4 h-4" /> },
-  { path: "/byf", label: "BYF", icon: <span className="text-xs">♡</span> },
-  { path: "/favs", label: "FAVS", icon: <span className="text-xs">★</span> },
-  { path: "/messages", label: "Messages", icon: <span className="text-xs">✉</span> },
+  { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" /> },
+  { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" /> },
+  { path: "/messages", label: "Messages", icon: <MessageSquare className="w-4 h-4" /> },
 ]
 
 export function TaskBar() {
@@ -23,6 +24,18 @@ export function TaskBar() {
   const { isPlaying, togglePlay } = useMusicPlayer()
 
   useEffect(() => {
+    // Check if dark mode is enabled in localStorage
+    const savedTheme = localStorage.getItem("theme")
+    const isDark = savedTheme === "dark" || (!savedTheme && window.matchMedia("(prefers-color-scheme: dark)").matches)
+
+    setIsDarkTheme(isDark)
+
+    if (isDark) {
+      document.documentElement.classList.add("dark")
+    } else {
+      document.documentElement.classList.remove("dark")
+    }
+
     const updateTime = () => {
       const now = new Date()
       setTime(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))
@@ -35,7 +48,13 @@ export function TaskBar() {
 
   const toggleTheme = () => {
     setIsDarkTheme(!isDarkTheme)
-    document.body.classList.toggle("dark-theme")
+    if (isDarkTheme) {
+      document.documentElement.classList.remove("dark")
+      localStorage.setItem("theme", "light")
+    } else {
+      document.documentElement.classList.add("dark")
+      localStorage.setItem("theme", "dark")
+    }
   }
 
   const createHearts = () => {
@@ -68,22 +87,25 @@ export function TaskBar() {
         className="taskbar fixed top-0 left-0 right-0 z-50 bg-pink-50/90 dark:bg-[#16213e]/90 backdrop-blur-md border-b border-pink-200 dark:border-[#2d2d42] shadow-sm"
         initial={{ y: -50, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        transition={{ type: "spring", stiffness: 300, damping: 30 }}
+        transition={{ type: "spring", stiffness: 300, damping: 30, duration: 0.3 }}
       >
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-12">
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center">
               <motion.div
                 className="taskbar-logo flex items-center mr-4"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="text-pink-600 dark:text-pink-400 font-bold text-lg">
-                  pien<span className="text-pink-400 dark:text-pink-300">!</span>
-                </span>
+                <Link href="/">
+                  <span className="text-pink-600 dark:text-pink-400 font-bold text-lg">
+                    pien<span className="text-pink-400 dark:text-pink-300">!</span>
+                  </span>
+                </Link>
               </motion.div>
 
-              <div className="flex space-x-1">
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex space-x-1">
                 {pages.map((page) => (
                   <Link href={page.path} key={page.path}>
                     <motion.div
@@ -110,11 +132,16 @@ export function TaskBar() {
             </div>
 
             <div className="flex items-center space-x-3">
+              {/* Mobile Menu */}
+              <MobileMenu />
+
               <motion.button
                 className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
                 onClick={createHearts}
                 whileHover={{ scale: 1.1, rotate: 10 }}
                 whileTap={{ scale: 0.9 }}
+                aria-label="Create hearts"
+                title="Spread kawaii hearts!"
               >
                 <span className="text-lg">✿</span>
               </motion.button>
@@ -124,6 +151,7 @@ export function TaskBar() {
                 onClick={togglePlay}
                 whileHover={{ scale: 1.1, rotate: 10 }}
                 whileTap={{ scale: 0.9 }}
+                aria-label={isPlaying ? "Pause music" : "Play music"}
               >
                 <Music className={`w-4 h-4 ${isPlaying ? "text-pink-500" : ""}`} />
               </motion.button>
@@ -133,11 +161,14 @@ export function TaskBar() {
                 onClick={toggleTheme}
                 whileHover={{ scale: 1.1, rotate: 10 }}
                 whileTap={{ scale: 0.9 }}
+                aria-label={isDarkTheme ? "Switch to light mode" : "Switch to dark mode"}
               >
                 {isDarkTheme ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </motion.button>
 
-              <div className="taskbar-time text-xs text-pink-600 dark:text-pink-400 font-medium">{time}</div>
+              <div className="taskbar-time text-xs text-pink-600 dark:text-pink-400 font-medium hidden sm:block">
+                {time}
+              </div>
             </div>
           </div>
         </div>
