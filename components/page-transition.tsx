@@ -3,26 +3,35 @@
 import type React from "react"
 import { useState, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { LoadingSpinner } from "@/components/loading-spinner"
 
 export function PageTransition({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
+  const router = useRouter()
   const [initialLoad, setInitialLoad] = useState(true)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Only show loading on initial page load
-    if (initialLoad) {
+    // Check if this is the first load using sessionStorage
+    const isFirstLoad = sessionStorage.getItem("firstLoadDone") !== "true"
+
+    if (isFirstLoad) {
+      // First time loading the site in this session
+      setLoading(true)
       const timer = setTimeout(() => {
         setLoading(false)
         setInitialLoad(false)
+        // Mark that first load is complete for this session
+        sessionStorage.setItem("firstLoadDone", "true")
       }, 800)
       return () => clearTimeout(timer)
     } else {
+      // Not first load, don't show loading
       setLoading(false)
+      setInitialLoad(false)
     }
-  }, [initialLoad])
+  }, [])
 
   return (
     <AnimatePresence mode="wait">

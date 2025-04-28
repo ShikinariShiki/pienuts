@@ -65,32 +65,32 @@ const songs: Song[] = [
   {
     title: "部屋の窓辺",
     artist: "Lamp",
-    src: "/music/track6.mp3", 
+    src: "/music/track6.mp3",
   },
   {
     title: "Flavors",
     artist: "Tsundere Twintails",
-    src: "/music/track7.mp3", // Menggunakan file yang ada untuk demo
+    src: "/music/track7.mp3",
   },
   {
     title: "Butterflies",
     artist: "Tsundere Twintails",
-    src: "/music/track8.mp3", // Menggunakan file yang ada untuk demo
+    src: "/music/track8.mp3",
   },
   {
     title: "Bossa Break!",
     artist: "Frizk",
-    src: "/music/track9.mp3", // Menggunakan file yang ada untuk demo
+    src: "/music/track9.mp3",
   },
   {
     title: "Shower duty",
     artist: "Meaningful Stone",
-    src: "/music/track10.mp3", // Menggunakan file yang ada untuk demo
+    src: "/music/track10.mp3",
   },
   {
     title: "nero",
     artist: "フレネシ",
-    src: "/music/track11.mp3", // Menggunakan file yang ada untuk demo
+    src: "/music/track11.mp3",
   },
 ]
 
@@ -108,9 +108,12 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [showQueue, setShowQueue] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [isFading, setIsFading] = useState(false)
+  const [isFirstLoad, setIsFirstLoad] = useState(true)
 
   // Use a ref to store the audio element
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null)
 
   // Initialize audio element only once on client side
   useEffect(() => {
@@ -124,8 +127,35 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       // Set initial source
       audio.src = songs[currentSongIndex].src
       audio.load()
+      audio.volume = 0 // Start with volume 0 for fade in
 
       console.log("Audio element created")
+
+      // Check if this is the first visit using sessionStorage
+      const hasVisited = sessionStorage.getItem("hasVisitedBefore") === "true"
+
+      if (!hasVisited) {
+        // First visit, autoplay with fade in
+        const playPromise = audio.play().catch((err) => {
+          console.error("Autoplay prevented:", err)
+          // Many browsers prevent autoplay, so we'll handle this gracefully
+        })
+
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true)
+              // Fade in
+              fadeIn()
+            })
+            .catch((err) => {
+              console.error("Autoplay error:", err)
+            })
+        }
+
+        // Mark that user has visited
+        sessionStorage.setItem("hasVisitedBefore", "true")
+      }
     }
 
     return () => {
@@ -134,8 +164,110 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         audioRef.current.pause()
         audioRef.current.src = ""
       }
+
+      // Clear any fade intervals
+      if (fadeIntervalRef.current) {
+        clearInterval(fadeIntervalRef.current)
+      }
     }
   }, [])
+
+  // Fade in function
+  const fadeIn = () => {
+    if (!audioRef.current) return
+
+    setIsFading(true)
+    let vol = 0
+    audioRef.current.volume = vol
+
+    fadeIntervalRef.current = setInterval(() => {
+      if (!audioRef.current) return
+
+      vol += 0.05
+      if (vol >= volume) {
+        vol = volume
+        clearInterval(fadeIntervalRef.current!)
+        setIsFading(false)
+      }
+
+      audioRef.current.volume = isMuted ? 0 : vol
+    }, 100)
+  }
+
+  // Fade out function
+  const fadeOut = () => {
+    if (!audioRef.current) return
+
+    setIsFading(true)
+    let vol = audioRef.current.volume
+
+    fadeIntervalRef.current = setInterval(() => {
+      if (!audioRef.current) return
+
+      vol -= 0.05
+      if (vol <= 0) {
+        vol = 0
+        clearInterval(fadeIntervalRef.current!)
+        setIsFading(false)
+
+        // After fade out completes, we can pause or change track
+        return true
+      }
+
+      audioRef.current.volume = vol
+      return false
+    }, 100)
+
+    return false // Not done fading yet
+  }
+
+  // Cross fade between tracks
+  const crossFade = (nextIndex: number) => {
+    if (!audioRef.current) return
+
+    // Start fading out current track
+    setIsFading(true)
+    let vol = audioRef.current.volume
+    let isDone = false
+
+    fadeIntervalRef.current = setInterval(() => {
+      if (!audioRef.current || isDone) return
+
+      vol -= 0.05
+      if (vol <= 0) {
+        vol = 0
+        clearInterval(fadeIntervalRef.current!)
+
+        // After fade out completes, change track and fade in
+        audioRef.current.src = songs[nextIndex].src
+        audioRef.current.load()
+        audioRef.current.play().catch((err) => {
+          console.error("Play error during crossfade:", err)
+        })
+
+        // Start fade in
+        let newVol = 0
+        audioRef.current.volume = newVol
+
+        fadeIntervalRef.current = setInterval(() => {
+          if (!audioRef.current) return
+
+          newVol += 0.05
+          if (newVol >= volume) {
+            newVol = volume
+            clearInterval(fadeIntervalRef.current!)
+            setIsFading(false)
+          }
+
+          audioRef.current.volume = isMuted ? 0 : newVol
+        }, 100)
+
+        isDone = true
+      } else {
+        audioRef.current.volume = vol
+      }
+    }, 100)
+  }
 
   // Handle song changes and loading
   useEffect(() => {
@@ -153,31 +285,44 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
 
       // Check if the source has changed before setting it
       if (audio.src !== window.location.origin + songSrc) {
-        audio.src = songSrc
-        audio.load()
-      }
+        if (isPlaying && !isFirstLoad) {
+          // If already playing and not first load, use crossfade
+          crossFade(currentSongIndex)
+        } else {
+          // Otherwise just load the new track
+          audio.src = songSrc
+          audio.load()
 
-      // Set audio properties
-      audio.volume = isMuted ? 0 : volume
-      audio.loop = isLooping
+          // Set audio properties
+          audio.volume = isMuted ? 0 : volume
+          audio.loop = isLooping
 
-      // If it should be playing, play it
-      if (isPlaying) {
-        const playPromise = audio.play()
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error("Play failed:", error)
-            setError(`Failed to play: ${error.message}`)
-            setIsPlaying(false)
-          })
+          // If it should be playing, play it
+          if (isPlaying) {
+            const playPromise = audio.play()
+            if (playPromise !== undefined) {
+              playPromise.catch((error) => {
+                console.error("Play failed:", error)
+                setError(`Failed to play: ${error.message}`)
+                setIsPlaying(false)
+              })
+            }
+          }
         }
+      } else {
+        // Same source, just update properties
+        audio.volume = isMuted ? 0 : volume
+        audio.loop = isLooping
       }
+
+      // No longer first load
+      setIsFirstLoad(false)
     } catch (err) {
       console.error("Error setting up audio:", err)
       setError(`Error setting up audio: ${err instanceof Error ? err.message : String(err)}`)
       setIsPlaying(false)
     }
-  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping])
+  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping, isFirstLoad])
 
   // Set up event listeners
   useEffect(() => {
@@ -251,7 +396,11 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       const newIsPlaying = !prev
 
       if (newIsPlaying) {
-        // Try to play
+        // Try to play with fade in
+        if (audioRef.current.volume === 0 || isFading) {
+          fadeIn()
+        }
+
         const playPromise = audioRef.current.play()
         if (playPromise !== undefined) {
           playPromise.catch((error) => {
@@ -261,8 +410,18 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
           })
         }
       } else {
-        // Pause
-        audioRef.current.pause()
+        // Pause with fade out
+        const fadeOutComplete = fadeOut()
+        if (fadeOutComplete) {
+          audioRef.current.pause()
+        } else {
+          // If fade is not complete, set up a timeout to pause after fade
+          setTimeout(() => {
+            if (audioRef.current) {
+              audioRef.current.pause()
+            }
+          }, 1500) // Slightly longer than the fade duration
+        }
       }
 
       return newIsPlaying

@@ -15,6 +15,7 @@ import {
   Heart,
   Star,
   MessageSquare,
+  Camera,
   Play,
   Pause,
   SkipForward,
@@ -33,6 +34,7 @@ const pages = [
   { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" /> },
   { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" /> },
   { path: "/messages", label: "Messages", icon: <MessageSquare className="w-4 h-4" /> },
+  { path: "/photobooth", label: "Photobooth", icon: <Camera className="w-4 h-4" /> },
 ]
 
 export function TaskBar() {

@@ -2,11 +2,15 @@
 
 import type React from "react"
 import { useEffect } from "react"
+import { useRouter, usePathname } from "next/navigation"
 import { TaskBar } from "@/components/task-bar"
 import { PageTransition } from "@/components/page-transition"
 
 export default function Template({ children }: { children: React.ReactNode }) {
-  // Set up client-side navigation without loading
+  const router = useRouter()
+  const pathname = usePathname()
+
+  // Fix navigation issues
   useEffect(() => {
     // Add event listener for link clicks to prevent full page reloads
     const handleLinkClick = (e: MouseEvent) => {
@@ -23,11 +27,12 @@ export default function Template({ children }: { children: React.ReactNode }) {
       ) {
         e.preventDefault()
 
-        // Use History API for client-side navigation
-        window.history.pushState({}, "", link.href)
+        // Extract the pathname from the link
+        const url = new URL(link.href)
+        const newPathname = url.pathname
 
-        // Dispatch a popstate event to trigger route change
-        window.dispatchEvent(new PopStateEvent("popstate"))
+        // Use Next.js router for navigation
+        router.push(newPathname)
       }
     }
 
@@ -36,7 +41,7 @@ export default function Template({ children }: { children: React.ReactNode }) {
     return () => {
       document.removeEventListener("click", handleLinkClick)
     }
-  }, [])
+  }, [router])
 
   return (
     <>

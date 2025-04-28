@@ -4,34 +4,65 @@
 // Simulate network delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Simulate server storage
-let serverMessages = [
-  {
-    id: 1,
-    message: "Your art is so cute! I love your style so much! ♡",
-    date: "2023-11-15",
-  },
-  {
-    id: 2,
-    message: "Can you teach me how to draw like you? I'm a big fan!",
-    date: "2023-11-14",
-  },
-  {
-    id: 3,
-    message: "I saw your cosplay photos, they're amazing! What's your next costume?",
-    date: "2023-11-12",
-  },
-  {
-    id: 4,
-    message: "Do you play Genshin Impact? What's your UID?",
-    date: "2023-11-10",
-  },
-  {
-    id: 5,
-    message: "Your kawaii style is so inspiring! Keep up the great work!",
-    date: "2023-11-08",
-  },
-]
+// Simulate server storage with localStorage
+// In a real app, this would be a database on the server
+const getServerMessages = () => {
+  try {
+    const storedMessages = localStorage.getItem("server_messages")
+    if (storedMessages) {
+      return JSON.parse(storedMessages)
+    }
+  } catch (error) {
+    console.error("Error retrieving messages:", error)
+  }
+
+  // Default messages if none exist
+  const defaultMessages = [
+    {
+      id: 1,
+      message: "Your art is so cute! I love your style so much! ♡",
+      date: "2023-11-15",
+    },
+    {
+      id: 2,
+      message: "Can you teach me how to draw like you? I'm a big fan!",
+      date: "2023-11-14",
+    },
+    {
+      id: 3,
+      message: "I saw your cosplay photos, they're amazing! What's your next costume?",
+      date: "2023-11-12",
+    },
+    {
+      id: 4,
+      message: "Do you play Genshin Impact? What's your UID?",
+      date: "2023-11-10",
+    },
+    {
+      id: 5,
+      message: "Your kawaii style is so inspiring! Keep up the great work!",
+      date: "2023-11-08",
+    },
+  ]
+
+  // Initialize storage with default messages
+  localStorage.setItem("server_messages", JSON.stringify(defaultMessages))
+  return defaultMessages
+}
+
+// Save messages to "server" (localStorage)
+const saveServerMessages = (messages: any[]) => {
+  try {
+    localStorage.setItem("server_messages", JSON.stringify(messages))
+    return true
+  } catch (error) {
+    console.error("Error saving messages:", error)
+    return false
+  }
+}
+
+// Initialize server messages
+let serverMessages = getServerMessages()
 
 export async function fetchUserData() {
   // Simulate API request
@@ -137,7 +168,10 @@ export async function fetchRecentMessages() {
   // Simulate API request
   await delay(800)
 
-  // Return mock data from server
+  // Get messages from "server"
+  serverMessages = getServerMessages()
+
+  // Return most recent 3 messages
   return serverMessages.slice(0, 3)
 }
 
@@ -145,7 +179,10 @@ export async function fetchAllMessages() {
   // Simulate API request
   await delay(800)
 
-  // Return all messages from server
+  // Get messages from "server"
+  serverMessages = getServerMessages()
+
+  // Return all messages
   return serverMessages
 }
 
@@ -160,9 +197,50 @@ export async function sendUserMessage(message: string) {
     date: new Date().toLocaleDateString(),
   }
 
-  // Add to server storage (in a real app, this would be a database operation)
+  // Get current messages
+  serverMessages = getServerMessages()
+
+  // Add to server storage
   serverMessages = [newMsg, ...serverMessages]
+
+  // Save back to "server"
+  saveServerMessages(serverMessages)
 
   // Return success response
   return { success: true }
 }
+
+// In a real PHP implementation, this would be a PHP script that handles
+// storing messages in a database. Here's how it would look:
+/*
+<?php
+// messages.php
+header('Content-Type: application/json');
+
+// Connect to database
+$conn = new mysqli('localhost', 'username', 'password', 'database');
+
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+    // Get messages
+    $result = $conn->query("SELECT * FROM messages ORDER BY id DESC");
+    $messages = [];
+    
+    while($row = $result->fetch_assoc()) {
+        $messages[] = $row;
+    }
+    
+    echo json_encode($messages);
+}
+else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    // Add new message
+    $data = json_decode(file_get_contents('php://input'), true);
+    $message = $conn->real_escape_string($data['message']);
+    
+    $conn->query("INSERT INTO messages (message, date) VALUES ('$message', NOW())");
+    
+    echo json_encode(['success' => true, 'id' => $conn->insert_id]);
+}
+
+$conn->close();
+?>
+*/

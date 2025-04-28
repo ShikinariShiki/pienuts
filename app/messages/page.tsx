@@ -15,35 +15,23 @@ export default function MessagesPage() {
   const [showNotification, setShowNotification] = useState(false)
   const [sending, setSending] = useState(false)
 
-  useEffect(() => {
-    const loadData = async () => {
-      try {
-        setLoading(true)
-
-        // Try to get messages from localStorage first
-        const storedMessages = localStorage.getItem("pien_messages")
-
-        if (storedMessages) {
-          setMessages(JSON.parse(storedMessages))
-        } else {
-          // If no stored messages, fetch from API
-          const data = await fetchAllMessages()
-          setMessages(data)
-
-          // Store in localStorage
-          localStorage.setItem("pien_messages", JSON.stringify(data))
-        }
-
-        setError(null)
-      } catch (err) {
-        setError("Failed to load messages. Please try again!")
-        console.error(err)
-      } finally {
-        setLoading(false)
-      }
+  // Load messages from "server"
+  const loadMessages = async () => {
+    try {
+      setLoading(true)
+      const data = await fetchAllMessages()
+      setMessages(data)
+      setError(null)
+    } catch (err) {
+      setError("Failed to load messages. Please try again!")
+      console.error(err)
+    } finally {
+      setLoading(false)
     }
+  }
 
-    loadData()
+  useEffect(() => {
+    loadMessages()
   }, [])
 
   const handleSendMessage = async () => {
@@ -53,9 +41,8 @@ export default function MessagesPage() {
       setSending(true)
       await sendUserMessage(newMessage)
 
-      // Fetch updated messages from server
-      const updatedMessages = await fetchAllMessages()
-      setMessages(updatedMessages)
+      // Reload messages from "server"
+      await loadMessages()
 
       setNewMessage("")
       setShowNotification(true)
@@ -88,7 +75,7 @@ export default function MessagesPage() {
           <p className="text-pink-600 dark:text-pink-300 mb-4">{error}</p>
           <button
             className="button px-4 py-2 text-pink-600 dark:text-pink-300 font-medium"
-            onClick={() => window.location.reload()}
+            onClick={() => loadMessages()}
           >
             Try Again
           </button>
