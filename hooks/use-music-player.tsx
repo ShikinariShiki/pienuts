@@ -38,7 +38,7 @@ type MusicPlayerContextType = {
 
 const songs: Song[] = [
   {
-    title: "七時の食事(Chocolate Lemon)",
+    title: "七時の食事 (Chocolate Lemon)",
     artist: "Mitsukiyo",
     src: "/music/track1.mp3",
   },
@@ -49,18 +49,48 @@ const songs: Song[] = [
   },
   {
     title: "Salty Moon",
-    artist: "Hoyo-Mix",
+    artist: "HOYO-MIX",
     src: "/music/track3.mp3",
   },
   {
-    title: "Kawaii Melody",
-    artist: "Pastel Dreams",
+    title: "furret walk",
+    artist: "bouncyshield",
     src: "/music/track4.mp3",
   },
   {
-    title: "Cherry Blossom",
-    artist: "Sakura Beats",
+    title: "A letter",
+    artist: "Tsundere Twintails",
     src: "/music/track5.mp3",
+  },
+  {
+    title: "部屋の窓辺",
+    artist: "Lamp",
+    src: "/music/track6.mp3", 
+  },
+  {
+    title: "Flavors",
+    artist: "Tsundere Twintails",
+    src: "/music/track7.mp3", // Menggunakan file yang ada untuk demo
+  },
+  {
+    title: "Butterflies",
+    artist: "Tsundere Twintails",
+    src: "/music/track8.mp3", // Menggunakan file yang ada untuk demo
+  },
+  {
+    title: "Bossa Break!",
+    artist: "Frizk",
+    src: "/music/track9.mp3", // Menggunakan file yang ada untuk demo
+  },
+  {
+    title: "Shower duty",
+    artist: "Meaningful Stone",
+    src: "/music/track10.mp3", // Menggunakan file yang ada untuk demo
+  },
+  {
+    title: "nero",
+    artist: "フレネシ",
+    src: "/music/track11.mp3", // Menggunakan file yang ada untuk demo
   },
 ]
 
