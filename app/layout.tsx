@@ -3,6 +3,8 @@ import "./globals.css"
 import { Poppins } from "next/font/google"
 import type { Metadata } from "next"
 import { MusicPlayerProvider } from "@/hooks/use-music-player"
+import { TaskBar } from "@/components/task-bar"
+import { PageTransition } from "@/components/page-transition"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -27,7 +29,11 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
       <body className={poppins.className}>
-        <MusicPlayerProvider>{children}</MusicPlayerProvider>
+        <MusicPlayerProvider>
+          <TaskBar />
+          <PageTransition>{children}</PageTransition>
+          <div className="h-12"></div> {/* Spacer for fixed taskbar */}
+        </MusicPlayerProvider>
       </body>
     </html>
   )
