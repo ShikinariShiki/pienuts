@@ -85,7 +85,7 @@ export default function DniPage() {
 
           <ul className="list-disc pl-6 space-y-2 text-pink-600 dark:text-pink-400">
             <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-              Minor
+              Problematic
             </motion.li>
             <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
               02 voter

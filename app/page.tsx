@@ -7,7 +7,6 @@ import { motion } from "framer-motion"
 import { fetchUserData, fetchRecentMessages } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
-import { MusicPlayer } from "@/components/music-player"
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null)
@@ -60,7 +59,6 @@ export default function Home() {
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
       {showHearts && <FloatingHearts />}
-      <MusicPlayer />
 
       <motion.div
         className="card w-full max-w-2xl p-6"
@@ -101,7 +99,7 @@ export default function Home() {
               onClick={handleHeartClick}
             >
               <Image
-                src="/images/profile.png"
+                src="/images/profile.jpeg"
                 alt="Profile"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"

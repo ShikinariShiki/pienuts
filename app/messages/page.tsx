@@ -6,7 +6,6 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { fetchAllMessages, sendUserMessage } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
-import { MusicPlayer } from "@/components/music-player"
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState<any[]>([])
@@ -88,8 +87,6 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
-      <MusicPlayer />
-
       <motion.div
         className="card w-full max-w-2xl p-6"
         initial={{ scale: 0.9, opacity: 0 }}
