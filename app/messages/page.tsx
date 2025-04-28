@@ -53,18 +53,9 @@ export default function MessagesPage() {
       setSending(true)
       await sendUserMessage(newMessage)
 
-      // Add the new message to the list
-      const newMsg = {
-        id: Date.now(),
-        message: newMessage,
-        date: new Date().toLocaleDateString(),
-      }
-
-      const updatedMessages = [newMsg, ...messages]
+      // Fetch updated messages from server
+      const updatedMessages = await fetchAllMessages()
       setMessages(updatedMessages)
-
-      // Update localStorage
-      localStorage.setItem("pien_messages", JSON.stringify(updatedMessages))
 
       setNewMessage("")
       setShowNotification(true)

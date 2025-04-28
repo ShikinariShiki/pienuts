@@ -2,7 +2,6 @@
 
 import type React from "react"
 import { useEffect } from "react"
-import { MusicPlayer } from "@/components/music-player"
 import { TaskBar } from "@/components/task-bar"
 import { PageTransition } from "@/components/page-transition"
 
@@ -43,7 +42,6 @@ export default function Template({ children }: { children: React.ReactNode }) {
     <>
       <TaskBar />
       <PageTransition>{children}</PageTransition>
-      <MusicPlayer />
     </>
   )
 }
