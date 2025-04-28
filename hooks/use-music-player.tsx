@@ -33,10 +33,8 @@ type MusicPlayerContextType = {
   toggleQueue: () => void
   isMuted: boolean
   toggleMute: () => void
-  error: string | null
 }
 
-// Define songs with absolute paths to ensure they're found
 const songs: Song[] = [
   {
     title: "七時の食事(Chocolate Lemon)",
@@ -78,91 +76,81 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [isShuffling, setIsShuffling] = useState(false)
   const [showQueue, setShowQueue] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
-  const [error, setError] = useState<string | null>(null)
+  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
 
-  // Use a ref to store the audio element
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
   // Initialize audio element only once on client side
   useEffect(() => {
-    if (typeof window === "undefined") return
-
-    // Create audio element if it doesn't exist
-    if (!audioRef.current) {
+    if (typeof window !== "undefined" && !audioElement) {
       const audio = new Audio()
+      audio.preload = "auto"
+      setAudioElement(audio)
       audioRef.current = audio
-
-      // Log for debugging
-      console.log("Audio element created")
     }
+  }, [audioElement])
 
-    return () => {
-      // Cleanup on unmount
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current.src = ""
-      }
-    }
-  }, [])
-
-  // Handle song changes and loading
+  // Handle song changes
   useEffect(() => {
-    if (!audioRef.current) return
+    if (!audioElement) return
 
-    const audio = audioRef.current
+    // Update source when song changes
+    audioElement.src = songs[currentSongIndex].src
+    audioElement.load()
 
-    // Reset error state
-    setError(null)
-
-    try {
-      // Set the source
-      const songSrc = songs[currentSongIndex].src
-      console.log(`Loading song: ${songSrc}`)
-
-      // Check if the source has changed before setting it
-      if (audio.src !== window.location.origin + songSrc) {
-        audio.src = songSrc
-        audio.load()
+    if (isPlaying) {
+      const playPromise = audioElement.play()
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error("Play failed:", error)
+          setIsPlaying(false)
+        })
       }
-
-      // Set audio properties
-      audio.volume = isMuted ? 0 : volume
-      audio.loop = isLooping
-
-      // If it should be playing, play it
-      if (isPlaying) {
-        const playPromise = audio.play()
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error("Play failed:", error)
-            setError(`Failed to play: ${error.message}`)
-            setIsPlaying(false)
-          })
-        }
-      }
-    } catch (err) {
-      console.error("Error setting up audio:", err)
-      setError(`Error setting up audio: ${err instanceof Error ? err.message : String(err)}`)
-      setIsPlaying(false)
     }
-  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping])
+  }, [currentSongIndex, audioElement])
+
+  // Handle play/pause
+  useEffect(() => {
+    if (!audioElement) return
+
+    if (isPlaying) {
+      const playPromise = audioElement.play()
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error("Play failed:", error)
+          setIsPlaying(false)
+        })
+      }
+    } else {
+      audioElement.pause()
+    }
+  }, [isPlaying, audioElement])
+
+  // Handle volume and mute changes
+  useEffect(() => {
+    if (!audioElement) return
+    audioElement.volume = isMuted ? 0 : volume
+  }, [volume, isMuted, audioElement])
+
+  // Handle loop setting
+  useEffect(() => {
+    if (!audioElement) return
+    audioElement.loop = isLooping
+  }, [isLooping, audioElement])
 
   // Set up event listeners
   useEffect(() => {
-    if (!audioRef.current) return
-
-    const audio = audioRef.current
+    if (!audioElement) return
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audio.currentTime)
-      if (audio.duration) {
-        setProgress((audio.currentTime / audio.duration) * 100)
+      setCurrentTime(audioElement.currentTime)
+      if (audioElement.duration) {
+        setProgress((audioElement.currentTime / audioElement.duration) * 100)
       }
     }
 
     const handleLoadedMetadata = () => {
-      console.log("Audio metadata loaded, duration:", audio.duration)
-      setDuration(audio.duration)
+      setDuration(audioElement.duration)
     }
 
     const handleEnded = () => {
@@ -179,78 +167,29 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       }
     }
 
-    const handleError = (e: Event) => {
-      console.error("Audio error:", e)
-      setError(`Audio error: ${audio.error?.message || "Unknown error"}`)
-      setIsPlaying(false)
-    }
-
-    const handleCanPlay = () => {
-      console.log("Audio can play now")
-      if (isPlaying) {
-        audio.play().catch((err) => {
-          console.error("Play failed in canplay handler:", err)
-          setIsPlaying(false)
-        })
-      }
-    }
-
-    // Add event listeners
-    audio.addEventListener("timeupdate", handleTimeUpdate)
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata)
-    audio.addEventListener("ended", handleEnded)
-    audio.addEventListener("error", handleError)
-    audio.addEventListener("canplay", handleCanPlay)
+    audioElement.addEventListener("timeupdate", handleTimeUpdate)
+    audioElement.addEventListener("loadedmetadata", handleLoadedMetadata)
+    audioElement.addEventListener("ended", handleEnded)
 
     return () => {
-      // Remove event listeners on cleanup
-      audio.removeEventListener("timeupdate", handleTimeUpdate)
-      audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
-      audio.removeEventListener("ended", handleEnded)
-      audio.removeEventListener("error", handleError)
-      audio.removeEventListener("canplay", handleCanPlay)
+      audioElement.removeEventListener("timeupdate", handleTimeUpdate)
+      audioElement.removeEventListener("loadedmetadata", handleLoadedMetadata)
+      audioElement.removeEventListener("ended", handleEnded)
     }
-  }, [currentSongIndex, isLooping, isPlaying, isShuffling, songs.length])
+  }, [audioElement, currentSongIndex, isLooping, isShuffling, songs.length])
 
   const togglePlay = () => {
-    if (!audioRef.current) return
-
-    setIsPlaying((prev) => {
-      const newIsPlaying = !prev
-
-      if (newIsPlaying) {
-        // Try to play
-        const playPromise = audioRef.current.play()
-        if (playPromise !== undefined) {
-          playPromise.catch((error) => {
-            console.error("Toggle play failed:", error)
-            setError(`Failed to play: ${error.message}`)
-            return false // Keep isPlaying as false if play fails
-          })
-        }
-      } else {
-        // Pause
-        audioRef.current.pause()
-      }
-
-      return newIsPlaying
-    })
+    setIsPlaying((prev) => !prev)
   }
 
   const seekTo = (time: number) => {
-    if (audioRef.current) {
-      audioRef.current.currentTime = time
+    if (audioElement) {
+      audioElement.currentTime = time
     }
   }
 
   const toggleLoop = () => {
-    setIsLooping((prev) => {
-      const newIsLooping = !prev
-      if (audioRef.current) {
-        audioRef.current.loop = newIsLooping
-      }
-      return newIsLooping
-    })
+    setIsLooping((prev) => !prev)
   }
 
   const toggleShuffle = () => {
@@ -262,13 +201,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   }
 
   const toggleMute = () => {
-    setIsMuted((prev) => {
-      const newIsMuted = !prev
-      if (audioRef.current) {
-        audioRef.current.volume = newIsMuted ? 0 : volume
-      }
-      return newIsMuted
-    })
+    setIsMuted((prev) => !prev)
   }
 
   const nextSong = () => {
@@ -324,7 +257,6 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         toggleQueue,
         isMuted,
         toggleMute,
-        error,
       }}
     >
       {children}
@@ -360,7 +292,6 @@ export function useMusicPlayer() {
       toggleQueue: () => {},
       isMuted: false,
       toggleMute: () => {},
-      error: null,
     }
   }
 

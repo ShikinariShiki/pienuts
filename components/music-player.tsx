@@ -4,7 +4,7 @@ import type React from "react"
 
 import { useState, useRef } from "react"
 import { motion, AnimatePresence } from "framer-motion"
-import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, Repeat, Shuffle, List, X, RefreshCw } from "lucide-react"
+import { Play, Pause, SkipForward, SkipBack, Volume2, VolumeX, Repeat, Shuffle, List, X } from "lucide-react"
 import { useMusicPlayer } from "@/hooks/use-music-player"
 
 export function MusicPlayer() {
@@ -30,7 +30,6 @@ export function MusicPlayer() {
     toggleQueue,
     isMuted,
     toggleMute,
-    error,
   } = useMusicPlayer()
 
   const [expanded, setExpanded] = useState(false)
@@ -55,11 +54,6 @@ export function MusicPlayer() {
     // Calculate the new time based on the percentage
     const newTime = (newProgress / 100) * duration
     seekTo(newTime)
-  }
-
-  // Function to retry loading the current song
-  const retrySong = () => {
-    setCurrentSongIndex(currentSongIndex)
   }
 
   return (
@@ -115,21 +109,6 @@ export function MusicPlayer() {
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
           >
-            {error && (
-              <div className="bg-pink-50 dark:bg-[#2d2d42] p-2 rounded-lg mb-2 text-xs text-pink-600 dark:text-pink-300 flex items-center justify-between">
-                <span className="truncate">Audio error - check files</span>
-                <motion.button
-                  className="ml-2 p-1 rounded-full bg-pink-100 dark:bg-[#3d3d5a] text-pink-600 dark:text-pink-300 flex-shrink-0"
-                  onClick={retrySong}
-                  whileHover={{ scale: 1.1 }}
-                  whileTap={{ scale: 0.9 }}
-                  title="Retry"
-                >
-                  <RefreshCw className="w-3 h-3" />
-                </motion.button>
-              </div>
-            )}
-
             <div
               className="h-1 bg-pink-100 dark:bg-[#2d2d42] rounded-full overflow-hidden cursor-pointer mb-2"
               onClick={handleProgressClick}
