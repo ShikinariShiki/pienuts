@@ -76,81 +76,44 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [isShuffling, setIsShuffling] = useState(false)
   const [showQueue, setShowQueue] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
-  const [audioElement, setAudioElement] = useState<HTMLAudioElement | null>(null)
+  const [isInitialized, setIsInitialized] = useState(false)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
+  const fadeInterval = useRef<NodeJS.Timeout | null>(null)
 
-  // Initialize audio element only once on client side
   useEffect(() => {
-    if (typeof window !== "undefined" && !audioElement) {
-      const audio = new Audio()
-      audio.preload = "auto"
-      setAudioElement(audio)
-      audioRef.current = audio
-    }
-  }, [audioElement])
-
-  // Handle song changes
-  useEffect(() => {
-    if (!audioElement) return
-
-    // Update source when song changes
-    audioElement.src = songs[currentSongIndex].src
-    audioElement.load()
-
-    if (isPlaying) {
-      const playPromise = audioElement.play()
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("Play failed:", error)
-          setIsPlaying(false)
-        })
-      }
-    }
-  }, [currentSongIndex, audioElement])
-
-  // Handle play/pause
-  useEffect(() => {
-    if (!audioElement) return
-
-    if (isPlaying) {
-      const playPromise = audioElement.play()
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("Play failed:", error)
-          setIsPlaying(false)
-        })
-      }
-    } else {
-      audioElement.pause()
-    }
-  }, [isPlaying, audioElement])
-
-  // Handle volume and mute changes
-  useEffect(() => {
-    if (!audioElement) return
-    audioElement.volume = isMuted ? 0 : volume
-  }, [volume, isMuted, audioElement])
-
-  // Handle loop setting
-  useEffect(() => {
-    if (!audioElement) return
-    audioElement.loop = isLooping
-  }, [isLooping, audioElement])
-
-  // Set up event listeners
-  useEffect(() => {
-    if (!audioElement) return
+    const audio = new Audio(songs[currentSongIndex].src)
+    audioRef.current = audio
+    audio.volume = volume
+    audio.loop = isLooping
+    audio.muted = isMuted
 
     const handleTimeUpdate = () => {
-      setCurrentTime(audioElement.currentTime)
-      if (audioElement.duration) {
-        setProgress((audioElement.currentTime / audioElement.duration) * 100)
+      if (audio.duration) {
+        setProgress((audio.currentTime / audio.duration) * 100)
+        setCurrentTime(audio.currentTime)
       }
     }
 
     const handleLoadedMetadata = () => {
-      setDuration(audioElement.duration)
+      setDuration(audio.duration)
+      // Auto-play when first loaded (after user interaction)
+      if (!isInitialized && typeof window !== "undefined") {
+        setIsInitialized(true)
+        // We'll try to autoplay, but browsers may block it
+        const playPromise = audio.play()
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true)
+            })
+            .catch((error) => {
+              // Auto-play was prevented, we'll need user interaction
+              console.log("Autoplay prevented:", error)
+              setIsPlaying(false)
+            })
+        }
+      }
     }
 
     const handleEnded = () => {
@@ -165,43 +128,109 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         // Go to next song if not looping
         setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1))
       }
+      // If looping, the audio.loop property will handle it
     }
 
-    audioElement.addEventListener("timeupdate", handleTimeUpdate)
-    audioElement.addEventListener("loadedmetadata", handleLoadedMetadata)
-    audioElement.addEventListener("ended", handleEnded)
+    audio.addEventListener("timeupdate", handleTimeUpdate)
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+    audio.addEventListener("ended", handleEnded)
+
+    // Handle play state
+    if (isPlaying) {
+      fadeInAudio(audio)
+    } else {
+      fadeOutAudio(audio)
+    }
 
     return () => {
-      audioElement.removeEventListener("timeupdate", handleTimeUpdate)
-      audioElement.removeEventListener("loadedmetadata", handleLoadedMetadata)
-      audioElement.removeEventListener("ended", handleEnded)
+      // Clean up fade effects
+      if (fadeInterval.current) {
+        clearInterval(fadeInterval.current)
+      }
+
+      // Clean up audio
+      audio.pause()
+      audio.removeEventListener("timeupdate", handleTimeUpdate)
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
+      audio.removeEventListener("ended", handleEnded)
     }
-  }, [audioElement, currentSongIndex, isLooping, isShuffling, songs.length])
+  }, [currentSongIndex, isPlaying, isLooping, isShuffling, volume, isMuted, isInitialized])
+
+  const fadeInAudio = (audio: HTMLAudioElement) => {
+    if (fadeInterval.current) {
+      clearInterval(fadeInterval.current)
+    }
+
+    // Start from a very low volume
+    let currentVol = 0
+    audio.volume = currentVol
+
+    // Try to play
+    const playPromise = audio.play()
+    if (playPromise !== undefined) {
+      playPromise
+        .then(() => {
+          // Gradually increase volume
+          fadeInterval.current = setInterval(() => {
+            if (currentVol < volume) {
+              currentVol = Math.min(volume, currentVol + 0.05)
+              audio.volume = currentVol
+            } else {
+              if (fadeInterval.current) clearInterval(fadeInterval.current)
+            }
+          }, 50)
+        })
+        .catch((error) => {
+          console.log("Play prevented:", error)
+          setIsPlaying(false)
+        })
+    }
+  }
+
+  const fadeOutAudio = (audio: HTMLAudioElement) => {
+    if (fadeInterval.current) {
+      clearInterval(fadeInterval.current)
+    }
+
+    // Start from current volume
+    let currentVol = audio.volume
+
+    // Gradually decrease volume
+    fadeInterval.current = setInterval(() => {
+      if (currentVol > 0.05) {
+        currentVol = Math.max(0, currentVol - 0.05)
+        audio.volume = currentVol
+      } else {
+        audio.pause()
+        if (fadeInterval.current) clearInterval(fadeInterval.current)
+      }
+    }, 50)
+  }
 
   const togglePlay = () => {
-    setIsPlaying((prev) => !prev)
+    setIsPlaying(!isPlaying)
   }
 
   const seekTo = (time: number) => {
-    if (audioElement) {
-      audioElement.currentTime = time
+    if (audioRef.current) {
+      audioRef.current.currentTime = time
     }
   }
 
   const toggleLoop = () => {
-    setIsLooping((prev) => !prev)
+    setIsLooping(!isLooping)
   }
 
   const toggleShuffle = () => {
-    setIsShuffling((prev) => !prev)
+    setIsShuffling(!isShuffling)
   }
 
   const toggleQueue = () => {
-    setShowQueue((prev) => !prev)
+    setShowQueue(!showQueue)
   }
 
   const toggleMute = () => {
-    setIsMuted((prev) => !prev)
+    setIsMuted(!isMuted)
   }
 
   const nextSong = () => {
