@@ -27,12 +27,12 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
       <body className={poppins.className}>
         <MusicPlayerProvider>
           <TaskBar />
           <PageTransition>{children}</PageTransition>
-          <div className="h-12"></div> {/* Spacer for fixed taskbar */}
         </MusicPlayerProvider>
       </body>
     </html>
