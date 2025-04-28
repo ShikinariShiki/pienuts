@@ -76,17 +76,21 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [isShuffling, setIsShuffling] = useState(false)
   const [showQueue, setShowQueue] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
-  const [isInitialized, setIsInitialized] = useState(false)
 
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const fadeInterval = useRef<NodeJS.Timeout | null>(null)
 
   useEffect(() => {
-    const audio = new Audio(songs[currentSongIndex].src)
-    audioRef.current = audio
-    audio.volume = volume
+    // Create audio element if it doesn't exist
+    if (!audioRef.current) {
+      audioRef.current = new Audio()
+    }
+
+    const audio = audioRef.current
+
+    // Set audio properties
+    audio.src = songs[currentSongIndex].src
+    audio.volume = isMuted ? 0 : volume
     audio.loop = isLooping
-    audio.muted = isMuted
 
     const handleTimeUpdate = () => {
       if (audio.duration) {
@@ -97,23 +101,6 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
 
     const handleLoadedMetadata = () => {
       setDuration(audio.duration)
-      // Auto-play when first loaded (after user interaction)
-      if (!isInitialized && typeof window !== "undefined") {
-        setIsInitialized(true)
-        // We'll try to autoplay, but browsers may block it
-        const playPromise = audio.play()
-        if (playPromise !== undefined) {
-          playPromise
-            .then(() => {
-              setIsPlaying(true)
-            })
-            .catch((error) => {
-              // Auto-play was prevented, we'll need user interaction
-              console.log("Autoplay prevented:", error)
-              setIsPlaying(false)
-            })
-        }
-      }
     }
 
     const handleEnded = () => {
@@ -137,75 +124,30 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
 
     // Handle play state
     if (isPlaying) {
-      fadeInAudio(audio)
+      const playPromise = audio.play()
+      if (playPromise !== undefined) {
+        playPromise.catch((error) => {
+          console.error("Play error:", error)
+          setIsPlaying(false)
+        })
+      }
     } else {
-      fadeOutAudio(audio)
+      audio.pause()
     }
 
     return () => {
-      // Clean up fade effects
-      if (fadeInterval.current) {
-        clearInterval(fadeInterval.current)
-      }
-
-      // Clean up audio
-      audio.pause()
       audio.removeEventListener("timeupdate", handleTimeUpdate)
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
       audio.removeEventListener("ended", handleEnded)
     }
-  }, [currentSongIndex, isPlaying, isLooping, isShuffling, volume, isMuted, isInitialized])
+  }, [currentSongIndex, isPlaying, isLooping, isShuffling, volume, isMuted])
 
-  const fadeInAudio = (audio: HTMLAudioElement) => {
-    if (fadeInterval.current) {
-      clearInterval(fadeInterval.current)
+  // Update volume when it changes
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume
     }
-
-    // Start from a very low volume
-    let currentVol = 0
-    audio.volume = currentVol
-
-    // Try to play
-    const playPromise = audio.play()
-    if (playPromise !== undefined) {
-      playPromise
-        .then(() => {
-          // Gradually increase volume
-          fadeInterval.current = setInterval(() => {
-            if (currentVol < volume) {
-              currentVol = Math.min(volume, currentVol + 0.05)
-              audio.volume = currentVol
-            } else {
-              if (fadeInterval.current) clearInterval(fadeInterval.current)
-            }
-          }, 50)
-        })
-        .catch((error) => {
-          console.log("Play prevented:", error)
-          setIsPlaying(false)
-        })
-    }
-  }
-
-  const fadeOutAudio = (audio: HTMLAudioElement) => {
-    if (fadeInterval.current) {
-      clearInterval(fadeInterval.current)
-    }
-
-    // Start from current volume
-    let currentVol = audio.volume
-
-    // Gradually decrease volume
-    fadeInterval.current = setInterval(() => {
-      if (currentVol > 0.05) {
-        currentVol = Math.max(0, currentVol - 0.05)
-        audio.volume = currentVol
-      } else {
-        audio.pause()
-        if (fadeInterval.current) clearInterval(fadeInterval.current)
-      }
-    }, 50)
-  }
+  }, [volume, isMuted])
 
   const togglePlay = () => {
     setIsPlaying(!isPlaying)

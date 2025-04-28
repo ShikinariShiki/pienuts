@@ -1,10 +1,10 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState, useEffect, useRef } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Home, User, X, Moon, Sun, Music } from "lucide-react"
-import { motion } from "framer-motion"
+import { Home, User, X, Moon, Sun, Music, Menu } from "lucide-react"
+import { motion, AnimatePresence } from "framer-motion"
 import { useMusicPlayer } from "@/hooks/use-music-player"
 
 const pages = [
@@ -21,6 +21,8 @@ export function TaskBar() {
   const [isDarkTheme, setIsDarkTheme] = useState(false)
   const [time, setTime] = useState("")
   const { isPlaying, togglePlay } = useMusicPlayer()
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
     const updateTime = () => {
@@ -32,6 +34,25 @@ export function TaskBar() {
     const interval = setInterval(updateTime, 60000)
     return () => clearInterval(interval)
   }, [])
+
+  useEffect(() => {
+    // Close mobile menu when clicking outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside)
+    }
+  }, [])
+
+  // Close mobile menu when route changes
+  useEffect(() => {
+    setMobileMenuOpen(false)
+  }, [pathname])
 
   const toggleTheme = () => {
     setIsDarkTheme(!isDarkTheme)
@@ -70,20 +91,23 @@ export function TaskBar() {
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 30 }}
       >
-        <div className="container mx-auto px-4">
+        <div className="container mx-auto px-2 sm:px-4">
           <div className="flex items-center justify-between h-12">
-            <div className="flex items-center space-x-1">
+            <div className="flex items-center">
               <motion.div
-                className="taskbar-logo flex items-center mr-4"
+                className="taskbar-logo flex items-center mr-2 sm:mr-4"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="text-pink-600 dark:text-pink-400 font-bold text-lg">
-                  pien<span className="text-pink-400 dark:text-pink-300">!</span>
-                </span>
+                <Link href="/">
+                  <span className="text-pink-600 dark:text-pink-400 font-bold text-lg">
+                    pien<span className="text-pink-400 dark:text-pink-300">!</span>
+                  </span>
+                </Link>
               </motion.div>
 
-              <div className="flex space-x-1">
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex space-x-1">
                 {pages.map((page) => (
                   <Link href={page.path} key={page.path}>
                     <motion.div
@@ -107,9 +131,21 @@ export function TaskBar() {
                   </Link>
                 ))}
               </div>
+
+              {/* Mobile Hamburger Menu Button */}
+              <div className="md:hidden">
+                <motion.button
+                  className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
+                  onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.9 }}
+                >
+                  <Menu className="w-5 h-5" />
+                </motion.button>
+              </div>
             </div>
 
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <motion.button
                 className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
                 onClick={createHearts}
@@ -137,11 +173,47 @@ export function TaskBar() {
                 {isDarkTheme ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </motion.button>
 
-              <div className="taskbar-time text-xs text-pink-600 dark:text-pink-400 font-medium">{time}</div>
+              <div className="taskbar-time text-xs text-pink-600 dark:text-pink-400 font-medium hidden sm:block">
+                {time}
+              </div>
             </div>
           </div>
         </div>
       </motion.div>
+      {/* Mobile Menu Dropdown */}
+      <AnimatePresence>
+        {mobileMenuOpen && (
+          <motion.div
+            ref={menuRef}
+            className="fixed top-12 left-0 right-0 z-40 bg-white/95 dark:bg-[#16213e]/95 backdrop-blur-md shadow-lg border-b border-pink-200 dark:border-[#2d2d42] md:hidden"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="container mx-auto p-4">
+              <div className="grid grid-cols-3 gap-2">
+                {pages.map((page) => (
+                  <Link href={page.path} key={page.path}>
+                    <motion.div
+                      className={`flex flex-col items-center p-3 rounded-lg ${
+                        pathname === page.path
+                          ? "bg-pink-100 dark:bg-[#2d2d42] text-pink-700 dark:text-pink-300"
+                          : "bg-pink-50 dark:bg-[#1a1a2e]/50 text-gray-600 dark:text-gray-300"
+                      }`}
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                    >
+                      <div className="text-xl mb-1">{page.icon}</div>
+                      <span className="text-xs font-medium">{page.label}</span>
+                    </motion.div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <div className="h-12"></div> {/* Spacer for fixed taskbar */}
     </>
   )

@@ -59,7 +59,7 @@ export function MusicPlayer() {
   return (
     <AnimatePresence>
       <motion.div
-        className={`fixed bottom-4 left-4 z-50 ${expanded ? "w-72 sm:w-80" : "w-12"} bg-white dark:bg-[#16213e] rounded-xl shadow-lg overflow-hidden border-2 border-pink-200 dark:border-pink-800/30`}
+        className={`fixed bottom-4 left-4 z-50 ${expanded ? "w-72 sm:w-80" : "w-12"} bg-white dark:bg-[#16213e] rounded-xl shadow-lg overflow-hidden border-2 border-pink-200 dark:border-pink-800/30 music-player`}
         initial={{ y: 100, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ delay: 0.5, type: "spring" }}
@@ -72,6 +72,7 @@ export function MusicPlayer() {
             onClick={togglePlay}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            aria-label={isPlaying ? "Pause" : "Play"}
           >
             {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
           </motion.button>
@@ -95,6 +96,7 @@ export function MusicPlayer() {
             onClick={() => setExpanded(!expanded)}
             whileHover={{ scale: 1.1 }}
             whileTap={{ scale: 0.9 }}
+            aria-label={expanded ? "Collapse" : "Expand"}
           >
             {expanded ? <span className="text-xs">✕</span> : <span className="text-xs">♫</span>}
           </motion.button>
@@ -127,6 +129,7 @@ export function MusicPlayer() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 title="Shuffle"
+                aria-label="Toggle shuffle"
               >
                 <Shuffle className="w-3 h-3" />
               </motion.button>
@@ -137,6 +140,7 @@ export function MusicPlayer() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 title="Previous"
+                aria-label="Previous song"
               >
                 <SkipBack className="w-3 h-3" />
               </motion.button>
@@ -147,6 +151,7 @@ export function MusicPlayer() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 title={isPlaying ? "Pause" : "Play"}
+                aria-label={isPlaying ? "Pause" : "Play"}
               >
                 {isPlaying ? <Pause className="w-4 h-4" /> : <Play className="w-4 h-4" />}
               </motion.button>
@@ -157,6 +162,7 @@ export function MusicPlayer() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 title="Next"
+                aria-label="Next song"
               >
                 <SkipForward className="w-3 h-3" />
               </motion.button>
@@ -167,6 +173,7 @@ export function MusicPlayer() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 title="Loop"
+                aria-label="Toggle loop"
               >
                 <Repeat className="w-3 h-3" />
               </motion.button>
@@ -178,9 +185,11 @@ export function MusicPlayer() {
                   className="w-7 h-7 rounded-full flex items-center justify-center bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-300"
                   onClick={toggleMute}
                   onMouseEnter={() => setShowVolumeSlider(true)}
+                  onTouchStart={() => setShowVolumeSlider(true)}
                   whileHover={{ scale: 1.1 }}
                   whileTap={{ scale: 0.9 }}
                   title={isMuted ? "Unmute" : "Mute"}
+                  aria-label={isMuted ? "Unmute" : "Mute"}
                 >
                   {isMuted ? <VolumeX className="w-3 h-3" /> : <Volume2 className="w-3 h-3" />}
                 </motion.button>
@@ -193,6 +202,7 @@ export function MusicPlayer() {
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: 10 }}
                       onMouseLeave={() => setShowVolumeSlider(false)}
+                      onTouchEnd={() => setShowVolumeSlider(false)}
                     >
                       <input
                         type="range"
@@ -202,6 +212,7 @@ export function MusicPlayer() {
                         value={isMuted ? 0 : volume}
                         onChange={(e) => setVolume(Number.parseFloat(e.target.value))}
                         className="w-full h-2 bg-pink-100 dark:bg-[#2d2d42] rounded-lg appearance-none cursor-pointer"
+                        aria-label="Volume"
                       />
                     </motion.div>
                   )}
@@ -214,6 +225,7 @@ export function MusicPlayer() {
                 whileHover={{ scale: 1.1 }}
                 whileTap={{ scale: 0.9 }}
                 title="Queue"
+                aria-label="Toggle queue"
               >
                 <List className="w-3 h-3" />
               </motion.button>
@@ -229,7 +241,11 @@ export function MusicPlayer() {
                 >
                   <div className="flex justify-between items-center mb-2">
                     <h4 className="text-xs font-bold text-pink-600 dark:text-pink-300">Queue</h4>
-                    <button className="text-pink-400 dark:text-pink-300 hover:text-pink-600" onClick={toggleQueue}>
+                    <button
+                      className="text-pink-400 dark:text-pink-300 hover:text-pink-600"
+                      onClick={toggleQueue}
+                      aria-label="Close queue"
+                    >
                       <X className="w-3 h-3" />
                     </button>
                   </div>
