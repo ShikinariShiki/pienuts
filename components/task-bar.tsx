@@ -93,7 +93,7 @@ export function TaskBar() {
       >
         <div className="container mx-auto px-2 sm:px-4">
           <div className="flex items-center justify-between h-12">
-            <div className="flex items-center">
+            <div className="flex items-center space-x-1">
               <motion.div
                 className="taskbar-logo flex items-center mr-2 sm:mr-4"
                 whileHover={{ scale: 1.05 }}

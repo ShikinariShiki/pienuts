@@ -33,8 +33,10 @@ type MusicPlayerContextType = {
   toggleQueue: () => void
   isMuted: boolean
   toggleMute: () => void
+  error: string | null
 }
 
+// Define songs with absolute paths to ensure they're found
 const songs: Song[] = [
   {
     title: "七時の食事(Chocolate Lemon)",
@@ -76,30 +78,90 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [isShuffling, setIsShuffling] = useState(false)
   const [showQueue, setShowQueue] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
+  // Use a ref to store the audio element
   const audioRef = useRef<HTMLAudioElement | null>(null)
 
+  // Initialize audio element only once on client side
   useEffect(() => {
+    if (typeof window === "undefined") return
+
     // Create audio element if it doesn't exist
     if (!audioRef.current) {
-      audioRef.current = new Audio()
+      const audio = new Audio()
+      audioRef.current = audio
+
+      // Log for debugging
+      console.log("Audio element created")
     }
+
+    return () => {
+      // Cleanup on unmount
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current.src = ""
+      }
+    }
+  }, [])
+
+  // Handle song changes and loading
+  useEffect(() => {
+    if (!audioRef.current) return
 
     const audio = audioRef.current
 
-    // Set audio properties
-    audio.src = songs[currentSongIndex].src
-    audio.volume = isMuted ? 0 : volume
-    audio.loop = isLooping
+    // Reset error state
+    setError(null)
+
+    try {
+      // Set the source
+      const songSrc = songs[currentSongIndex].src
+      console.log(`Loading song: ${songSrc}`)
+
+      // Check if the source has changed before setting it
+      if (audio.src !== window.location.origin + songSrc) {
+        audio.src = songSrc
+        audio.load()
+      }
+
+      // Set audio properties
+      audio.volume = isMuted ? 0 : volume
+      audio.loop = isLooping
+
+      // If it should be playing, play it
+      if (isPlaying) {
+        const playPromise = audio.play()
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error("Play failed:", error)
+            setError(`Failed to play: ${error.message}`)
+            setIsPlaying(false)
+          })
+        }
+      }
+    } catch (err) {
+      console.error("Error setting up audio:", err)
+      setError(`Error setting up audio: ${err instanceof Error ? err.message : String(err)}`)
+      setIsPlaying(false)
+    }
+  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping])
+
+  // Set up event listeners
+  useEffect(() => {
+    if (!audioRef.current) return
+
+    const audio = audioRef.current
 
     const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime)
       if (audio.duration) {
         setProgress((audio.currentTime / audio.duration) * 100)
-        setCurrentTime(audio.currentTime)
       }
     }
 
     const handleLoadedMetadata = () => {
+      console.log("Audio metadata loaded, duration:", audio.duration)
       setDuration(audio.duration)
     }
 
@@ -115,42 +177,64 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         // Go to next song if not looping
         setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1))
       }
-      // If looping, the audio.loop property will handle it
     }
 
-    audio.addEventListener("timeupdate", handleTimeUpdate)
-    audio.addEventListener("loadedmetadata", handleLoadedMetadata)
-    audio.addEventListener("ended", handleEnded)
+    const handleError = (e: Event) => {
+      console.error("Audio error:", e)
+      setError(`Audio error: ${audio.error?.message || "Unknown error"}`)
+      setIsPlaying(false)
+    }
 
-    // Handle play state
-    if (isPlaying) {
-      const playPromise = audio.play()
-      if (playPromise !== undefined) {
-        playPromise.catch((error) => {
-          console.error("Play error:", error)
+    const handleCanPlay = () => {
+      console.log("Audio can play now")
+      if (isPlaying) {
+        audio.play().catch((err) => {
+          console.error("Play failed in canplay handler:", err)
           setIsPlaying(false)
         })
       }
-    } else {
-      audio.pause()
     }
 
+    // Add event listeners
+    audio.addEventListener("timeupdate", handleTimeUpdate)
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+    audio.addEventListener("ended", handleEnded)
+    audio.addEventListener("error", handleError)
+    audio.addEventListener("canplay", handleCanPlay)
+
     return () => {
+      // Remove event listeners on cleanup
       audio.removeEventListener("timeupdate", handleTimeUpdate)
       audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
       audio.removeEventListener("ended", handleEnded)
+      audio.removeEventListener("error", handleError)
+      audio.removeEventListener("canplay", handleCanPlay)
     }
-  }, [currentSongIndex, isPlaying, isLooping, isShuffling, volume, isMuted])
-
-  // Update volume when it changes
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = isMuted ? 0 : volume
-    }
-  }, [volume, isMuted])
+  }, [currentSongIndex, isLooping, isPlaying, isShuffling, songs.length])
 
   const togglePlay = () => {
-    setIsPlaying(!isPlaying)
+    if (!audioRef.current) return
+
+    setIsPlaying((prev) => {
+      const newIsPlaying = !prev
+
+      if (newIsPlaying) {
+        // Try to play
+        const playPromise = audioRef.current.play()
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error("Toggle play failed:", error)
+            setError(`Failed to play: ${error.message}`)
+            return false // Keep isPlaying as false if play fails
+          })
+        }
+      } else {
+        // Pause
+        audioRef.current.pause()
+      }
+
+      return newIsPlaying
+    })
   }
 
   const seekTo = (time: number) => {
@@ -160,19 +244,31 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   }
 
   const toggleLoop = () => {
-    setIsLooping(!isLooping)
+    setIsLooping((prev) => {
+      const newIsLooping = !prev
+      if (audioRef.current) {
+        audioRef.current.loop = newIsLooping
+      }
+      return newIsLooping
+    })
   }
 
   const toggleShuffle = () => {
-    setIsShuffling(!isShuffling)
+    setIsShuffling((prev) => !prev)
   }
 
   const toggleQueue = () => {
-    setShowQueue(!showQueue)
+    setShowQueue((prev) => !prev)
   }
 
   const toggleMute = () => {
-    setIsMuted(!isMuted)
+    setIsMuted((prev) => {
+      const newIsMuted = !prev
+      if (audioRef.current) {
+        audioRef.current.volume = newIsMuted ? 0 : volume
+      }
+      return newIsMuted
+    })
   }
 
   const nextSong = () => {
@@ -228,6 +324,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         toggleQueue,
         isMuted,
         toggleMute,
+        error,
       }}
     >
       {children}
@@ -263,6 +360,7 @@ export function useMusicPlayer() {
       toggleQueue: () => {},
       isMuted: false,
       toggleMute: () => {},
+      error: null,
     }
   }
 

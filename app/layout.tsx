@@ -3,6 +3,8 @@ import "./globals.css"
 import { Poppins } from "next/font/google"
 import type { Metadata } from "next"
 import { MusicPlayerProvider } from "@/hooks/use-music-player"
+import { TaskBar } from "@/components/task-bar"
+import { PageTransition } from "@/components/page-transition"
 
 const poppins = Poppins({
   subsets: ["latin"],
@@ -28,7 +30,10 @@ export default function RootLayout({
         <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
       </head>
       <body className={poppins.className}>
-        <MusicPlayerProvider>{children}</MusicPlayerProvider>
+        <MusicPlayerProvider>
+          <TaskBar />
+          <PageTransition>{children}</PageTransition>
+        </MusicPlayerProvider>
       </body>
     </html>
   )

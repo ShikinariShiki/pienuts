@@ -8,6 +8,7 @@ import { fetchUserData, fetchRecentMessages } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
 import { MusicPlayer } from "@/components/music-player"
+import { AudioTest } from "@/components/audio-test"
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null)
@@ -15,6 +16,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showHearts, setShowHearts] = useState(false)
+  const [showAudioTest, setShowAudioTest] = useState(true) // Show audio test by default
 
   useEffect(() => {
     const loadData = async () => {
@@ -61,6 +63,7 @@ export default function Home() {
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
       {showHearts && <FloatingHearts />}
       <MusicPlayer />
+      {showAudioTest && <AudioTest />}
 
       <motion.div
         className="card w-full max-w-2xl p-6"
@@ -87,6 +90,15 @@ export default function Home() {
             Click on the tabs above to explore!
             <span className="inline-block mx-1">✿</span>
           </motion.p>
+
+          <motion.button
+            className="mt-4 button px-4 py-2 text-pink-600 font-medium"
+            onClick={() => setShowAudioTest(!showAudioTest)}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+          >
+            {showAudioTest ? "Hide Audio Test" : "Show Audio Test"}
+          </motion.button>
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
