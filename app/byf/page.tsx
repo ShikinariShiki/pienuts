@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { fetchByfData } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { PageNavigation } from "@/components/page-navigation"
 
 export default function ByfPage() {
   const [byfData, setByfData] = useState<any>(null)
@@ -114,6 +115,7 @@ export default function ByfPage() {
             I post content about anime, games, and my art. If you're comfortable with that, feel free to follow! (◕‿◕✿)
           </p>
         </motion.div>
+        <PageNavigation />
       </motion.div>
     </div>
   )

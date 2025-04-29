@@ -29,6 +29,7 @@ type MusicPlayerContextType = {
   nextSong: () => void
   prevSong: () => void
   songs: Song[]
+  setSongs: (songs: Song[]) => void // Add this function to the type
   audioRef: React.RefObject<HTMLAudioElement>
   showQueue: boolean
   toggleQueue: () => void
@@ -652,6 +653,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         nextSong,
         prevSong,
         songs,
+        setSongs, // Export the setSongs function
         audioRef,
         showQueue,
         toggleQueue,
@@ -691,6 +693,7 @@ export function useMusicPlayer() {
       nextSong: () => {},
       prevSong: () => {},
       songs: originalSongs,
+      setSongs: () => {}, // Add default implementation
       audioRef: { current: null },
       showQueue: false,
       toggleQueue: () => {},

@@ -2,18 +2,6 @@ import { type NextRequest, NextResponse } from "next/server"
 
 // Simulate database with localStorage (in a real app, use a database)
 const getStoredMessages = () => {
-  try {
-    // Since localStorage is only available in browser, we need to check
-    if (typeof localStorage !== "undefined") {
-      const storedMessages = localStorage.getItem("server_messages")
-      if (storedMessages) {
-        return JSON.parse(storedMessages)
-      }
-    }
-  } catch (error) {
-    console.error("Error retrieving messages:", error)
-  }
-
   // Default messages if none exist
   return [
     {
@@ -47,19 +35,6 @@ const getStoredMessages = () => {
       time_ago: "3 weeks ago",
     },
   ]
-}
-
-// Save messages to "server" (localStorage)
-const saveStoredMessages = (messages: any[]) => {
-  try {
-    if (typeof localStorage !== "undefined") {
-      localStorage.setItem("server_messages", JSON.stringify(messages))
-      return true
-    }
-  } catch (error) {
-    console.error("Error saving messages:", error)
-  }
-  return false
 }
 
 // Format date to "time ago" format
@@ -132,44 +107,12 @@ export async function POST(request: NextRequest) {
     // Add to messages
     messages = [newMsg, ...messages]
 
-    // Save back to "server"
-    saveStoredMessages(messages)
+    // In a real app, you would save to a database here
+    // For now, we'll just return the new message
 
     return NextResponse.json({ success: true, message: "Message added successfully", data: newMsg }, { status: 201 })
   } catch (error) {
     console.error("Error adding message:", error)
     return NextResponse.json({ success: false, message: "Failed to add message" }, { status: 500 })
-  }
-}
-
-// DELETE handler
-export async function DELETE(request: NextRequest) {
-  try {
-    const data = await request.json()
-
-    // Validate message ID
-    if (!data.id) {
-      return NextResponse.json({ success: false, message: "Message ID is required" }, { status: 400 })
-    }
-
-    // Get current messages
-    let messages = getStoredMessages()
-
-    // Check if message exists
-    const messageExists = messages.some((msg: any) => msg.id === data.id)
-    if (!messageExists) {
-      return NextResponse.json({ success: false, message: "Message not found" }, { status: 404 })
-    }
-
-    // Filter out the message to delete
-    messages = messages.filter((msg: any) => msg.id !== data.id)
-
-    // Save back to "server"
-    saveStoredMessages(messages)
-
-    return NextResponse.json({ success: true, message: "Message deleted successfully" })
-  } catch (error) {
-    console.error("Error deleting message:", error)
-    return NextResponse.json({ success: false, message: "Failed to delete message" }, { status: 500 })
   }
 }

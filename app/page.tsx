@@ -7,6 +7,8 @@ import { motion } from "framer-motion"
 import { fetchUserData, fetchRecentMessages } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
+import { User, X, Heart, Star, MessageSquare, Gift } from "lucide-react"
+import { PageNavigation } from "@/components/page-navigation"
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null)
@@ -280,6 +282,86 @@ export default function Home() {
             <i className="fas fa-envelope text-xl"></i>
           </motion.a>
         </motion.div>
+
+        {/* Site Directory - Moved from profile page */}
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
+        >
+          <motion.h2
+            className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4 text-center"
+            initial={{ y: -10 }}
+            animate={{ y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            Site Directory <span className="text-pink-400">♡</span>
+          </motion.h2>
+
+          <motion.div
+            className="divider mb-6"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.9 }}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {[
+              {
+                path: "/profile",
+                label: "Profile",
+                icon: <User className="w-4 h-4" />,
+                description: "View my profile",
+              },
+              {
+                path: "/dni",
+                label: "DNI",
+                icon: <X className="w-4 h-4" />,
+                description: "Do Not Interact guidelines",
+              },
+              {
+                path: "/byf",
+                label: "BYF",
+                icon: <Heart className="w-4 h-4" />,
+                description: "Before You Follow information",
+              },
+              { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" />, description: "My favorite things" },
+              {
+                path: "/messages",
+                label: "Messages",
+                icon: <MessageSquare className="w-4 h-4" />,
+                description: "Send and view messages",
+              },
+              {
+                path: "/gacha",
+                label: "Daily Gacha",
+                icon: <Gift className="w-4 h-4" />,
+                description: "Get your daily word of affirmation",
+              },
+            ].map((link, index) => (
+              <Link href={link.path} key={link.path}>
+                <motion.div
+                  className="bg-pink-50 dark:bg-[#2d2d42] p-3 rounded-xl flex items-center gap-3 hover:bg-pink-100 dark:hover:bg-[#3d3d5a] transition-colors"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.0 + index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-pink-600 dark:text-pink-300">{link.icon}</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-pink-700 dark:text-pink-300">{link.label}</p>
+                    <p className="text-xs text-pink-500 dark:text-pink-400">{link.description}</p>
+                  </div>
+                </motion.div>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+        <PageNavigation />
       </motion.div>
     </div>
   )

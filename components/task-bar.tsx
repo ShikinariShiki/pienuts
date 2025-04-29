@@ -15,7 +15,6 @@ import {
   Heart,
   Star,
   MessageSquare,
-  Camera,
   Play,
   Pause,
   SkipForward,
@@ -35,7 +34,6 @@ const pages = [
   { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" /> },
   { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" /> },
   { path: "/messages", label: "Messages", icon: <MessageSquare className="w-4 h-4" /> },
-  { path: "/photobooth", label: "Photobooth", icon: <Camera className="w-4 h-4" /> },
   { path: "/gacha", label: "Gacha", icon: <Gift className="w-4 h-4" /> },
 ]
 
@@ -70,6 +68,8 @@ export function TaskBar() {
     isMuted,
     toggleMute,
     error,
+    reorderSongs, // Use the reorderSongs function from the hook
+    resetPlaylist, // Use the resetPlaylist function from the hook
   } = useMusicPlayer()
 
   // Initialize queue items
@@ -464,18 +464,76 @@ export function TaskBar() {
                         </div>
 
                         <div className="mt-3 pt-3 border-t border-pink-100 dark:border-[#2d2d42]">
-                          <p className="text-xs font-medium text-pink-700 dark:text-pink-300 mb-2">Queue</p>
+                          <div className="flex justify-between items-center mb-2">
+                            <p className="text-xs font-medium text-pink-700 dark:text-pink-300">Queue</p>
+                            <div className="flex space-x-1">
+                              <button
+                                className="text-xs text-pink-500 dark:text-pink-400 hover:underline"
+                                onClick={() => setReorderEnabled(!reorderEnabled)}
+                              >
+                                {reorderEnabled ? "Done" : "Reorder"}
+                              </button>
+                              <button
+                                className="text-xs text-pink-500 dark:text-pink-400 hover:underline ml-2"
+                                onClick={resetPlaylist}
+                              >
+                                Reset
+                              </button>
+                            </div>
+                          </div>
                           <div className="max-h-32 overflow-y-auto">
                             {songs.map((song, index) => (
                               <div
-                                key={index}
+                                key={song.id || index}
                                 className={`p-1.5 text-xs rounded-md mb-1 cursor-pointer flex items-center ${
                                   currentSongIndex === index
                                     ? "bg-pink-200 dark:bg-pink-800/30 text-pink-700 dark:text-pink-300"
                                     : "hover:bg-pink-100 dark:hover:bg-[#3d3d5a] text-pink-600 dark:text-pink-400"
-                                }`}
-                                onClick={() => setCurrentSongIndex(index)}
+                                } ${reorderEnabled ? "draggable-song" : ""}`}
+                                onClick={() => !reorderEnabled && setCurrentSongIndex(index)}
+                                draggable={reorderEnabled}
+                                onDragStart={(e) => {
+                                  if (reorderEnabled) {
+                                    e.dataTransfer.setData("text/plain", index.toString())
+                                    e.currentTarget.classList.add("dragging")
+                                  }
+                                }}
+                                onDragEnd={(e) => {
+                                  if (reorderEnabled) {
+                                    e.currentTarget.classList.remove("dragging")
+                                  }
+                                }}
+                                onDragOver={(e) => {
+                                  if (reorderEnabled) {
+                                    e.preventDefault()
+                                  }
+                                }}
+                                onDrop={(e) => {
+                                  if (reorderEnabled) {
+                                    e.preventDefault()
+                                    const fromIndex = Number.parseInt(e.dataTransfer.getData("text/plain"))
+                                    reorderSongs(fromIndex, index)
+                                  }
+                                }}
                               >
+                                {reorderEnabled && (
+                                  <span className="drag-handle mr-1">
+                                    <svg
+                                      width="12"
+                                      height="12"
+                                      viewBox="0 0 24 24"
+                                      fill="none"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                    >
+                                      <path
+                                        d="M8 6H16M8 12H16M8 18H16"
+                                        stroke="currentColor"
+                                        strokeWidth="2"
+                                        strokeLinecap="round"
+                                      />
+                                    </svg>
+                                  </span>
+                                )}
                                 {currentSongIndex === index && isPlaying ? (
                                   <span className="w-3 h-3 mr-2 flex-shrink-0">
                                     <span className="block w-1 h-3 bg-pink-500 dark:bg-pink-400 rounded-sm inline-block animate-[soundwave_0.5s_ease-in-out_infinite_alternate]"></span>

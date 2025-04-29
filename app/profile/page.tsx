@@ -2,12 +2,11 @@
 
 import { useState, useEffect } from "react"
 import Image from "next/image"
-import Link from "next/link"
 import { motion } from "framer-motion"
 import { fetchUserProfile } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
-import { Home, MessageSquare, Camera, Gift, Heart, Star, X } from "lucide-react"
+import { PageNavigation } from "@/components/page-navigation"
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null)
@@ -55,32 +54,6 @@ export default function ProfilePage() {
     )
   }
 
-  // Site directory links
-  const siteLinks = [
-    { path: "/", label: "Home", icon: <Home className="w-4 h-4" />, description: "Return to the homepage" },
-    {
-      path: "/messages",
-      label: "Messages",
-      icon: <MessageSquare className="w-4 h-4" />,
-      description: "Send and view messages",
-    },
-    {
-      path: "/photobooth",
-      label: "Photobooth",
-      icon: <Camera className="w-4 h-4" />,
-      description: "Take cute photos with filters",
-    },
-    {
-      path: "/gacha",
-      label: "Daily Gacha",
-      icon: <Gift className="w-4 h-4" />,
-      description: "Get your daily word of affirmation",
-    },
-    { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" />, description: "Before You Follow information" },
-    { path: "/dni", label: "DNI", icon: <X className="w-4 h-4" />, description: "Do Not Interact guidelines" },
-    { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" />, description: "My favorite things" },
-  ]
-
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
       {showHearts && <FloatingHearts />}
@@ -118,21 +91,17 @@ export default function ProfilePage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <span className="tag" onClick={handleHeartClick}>
-                🎨 Artist
-              </span>
-              <span className="tag" onClick={handleHeartClick}>
-                🎮 Gamer
-              </span>
-              <span className="tag" onClick={handleHeartClick}>
-                🌸 Otaku
-              </span>
-              <span className="tag" onClick={handleHeartClick}>
-                🎵 Music Lover
-              </span>
-              <span className="tag" onClick={handleHeartClick}>
-                🍰 Foodie
-              </span>
+              {["🎨 Artist", "🎮 Gamer", "🌸 Otaku", "🎵 Music Lover", "🍰 Foodie"].map((tag, index) => (
+                <motion.span
+                  key={index}
+                  className="bg-pink-100 dark:bg-[#2d2d42] px-3 py-1 rounded-full text-sm text-pink-700 dark:text-pink-300 cursor-pointer"
+                  onClick={handleHeartClick}
+                  whileHover={{ y: -2, scale: 1.05, backgroundColor: "var(--pink-200)" }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  {tag}
+                </motion.span>
+              ))}
             </motion.div>
           </div>
 
@@ -212,53 +181,6 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
-        {/* Site Directory - New Section */}
-        <motion.div
-          className="mt-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <motion.h2
-            className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4 text-center"
-            initial={{ y: -10 }}
-            animate={{ y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            Site Directory <span className="text-pink-400">♡</span>
-          </motion.h2>
-
-          <motion.div
-            className="divider mb-6"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.9 }}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {siteLinks.map((link, index) => (
-              <Link href={link.path} key={link.path}>
-                <motion.div
-                  className="bg-pink-50 dark:bg-[#2d2d42] p-3 rounded-xl flex items-center gap-3 hover:bg-pink-100 dark:hover:bg-[#3d3d5a] transition-colors"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.0 + index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-pink-600 dark:text-pink-300">{link.icon}</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-pink-700 dark:text-pink-300">{link.label}</p>
-                    <p className="text-xs text-pink-500 dark:text-pink-400">{link.description}</p>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
-
         {/* Decorative elements */}
         <motion.div
           className="absolute -top-3 -right-3 w-8 h-8 bg-pink-300 dark:bg-pink-500 rounded-full flex items-center justify-center text-white hidden md:flex"
@@ -276,6 +198,7 @@ export default function ProfilePage() {
         >
           ♡
         </motion.div>
+        <PageNavigation />
       </motion.div>
     </div>
   )

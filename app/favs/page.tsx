@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { fetchFavsData } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { PageNavigation } from "@/components/page-navigation"
 
 export default function FavsPage() {
   const [favsData, setFavsData] = useState<any>(null)
@@ -131,6 +132,8 @@ export default function FavsPage() {
             These are just a few of my favorites! I'm always discovering new things to love. (◕‿◕✿)
           </p>
         </motion.div>
+
+        <PageNavigation />
       </motion.div>
     </div>
   )

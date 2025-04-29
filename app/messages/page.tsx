@@ -6,6 +6,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { fetchAllMessages, sendUserMessage } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { PageNavigation } from "@/components/page-navigation"
 
 export default function MessagesPage() {
   const [messages, setMessages] = useState<any[]>([])
@@ -189,6 +190,7 @@ export default function MessagesPage() {
         >
           Message sent! <i className="fas fa-check ml-1"></i>
         </div>
+        <PageNavigation />
       </motion.div>
     </div>
   )

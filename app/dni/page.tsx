@@ -4,6 +4,7 @@ import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
 import { fetchDniData } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
+import { PageNavigation } from "@/components/page-navigation"
 
 export default function DniPage() {
   const [dniData, setDniData] = useState<any>(null)
@@ -116,6 +117,7 @@ export default function DniPage() {
             This is just for my personal boundaries. If you respect these boundaries, we can be friends! (◕‿◕✿)
           </p>
         </motion.div>
+        <PageNavigation />
       </motion.div>
     </div>
   )

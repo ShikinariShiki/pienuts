@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion"
 import { WordOfDayGacha } from "@/components/word-of-day-gacha"
+import { PageNavigation } from "@/components/page-navigation"
 
 export default function GachaPage() {
   return (
@@ -24,6 +25,8 @@ export default function GachaPage() {
             Come back tomorrow for a new word of affirmation! ♡
           </p>
         </motion.div>
+
+        <PageNavigation />
       </motion.div>
     </div>
   )
