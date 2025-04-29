@@ -4,71 +4,222 @@
 // Simulate network delay
 const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
-// Simulate server storage with localStorage
-// In a real app, this would be a database on the server
-const getServerMessages = () => {
-  try {
-    const storedMessages = localStorage.getItem("server_messages")
-    if (storedMessages) {
-      return JSON.parse(storedMessages)
-    }
-  } catch (error) {
-    console.error("Error retrieving messages:", error)
-  }
+// Check if we're in a browser environment
+const isBrowser = typeof window !== "undefined"
 
-  // Default messages if none exist
-  const defaultMessages = [
+// Helper function to make API requests
+async function apiRequest(endpoint: string, options: RequestInit = {}) {
+  try {
+    const response = await fetch(`/api/${endpoint}`, {
+      headers: {
+        "Content-Type": "application/json",
+        ...options.headers,
+      },
+      ...options,
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      throw new Error(data.message || "Something went wrong")
+    }
+
+    return data
+  } catch (error) {
+    console.error(`API Error (${endpoint}):`, error)
+    throw error
+  }
+}
+
+// Get messages from server or localStorage fallback
+export async function fetchAllMessages() {
+  try {
+    // Try to fetch from server first
+    const response = await apiRequest("messages")
+    return response.data || []
+  } catch (error) {
+    console.warn("Falling back to localStorage for messages:", error)
+
+    // Fallback to localStorage if server request fails
+    if (isBrowser) {
+      try {
+        const storedMessages = localStorage.getItem("server_messages")
+        if (storedMessages) {
+          return JSON.parse(storedMessages)
+        }
+      } catch (localError) {
+        console.error("Error retrieving messages from localStorage:", localError)
+      }
+    }
+
+    // Default messages if both server and localStorage fail
+    return getDefaultMessages()
+  }
+}
+
+// Get recent messages (limited number)
+export async function fetchRecentMessages(limit = 3) {
+  try {
+    // Try to fetch from server first with limit parameter
+    const response = await apiRequest(`messages?limit=${limit}`)
+    return response.data || []
+  } catch (error) {
+    console.warn("Falling back to localStorage for recent messages:", error)
+
+    // Fallback to localStorage
+    if (isBrowser) {
+      try {
+        const storedMessages = localStorage.getItem("server_messages")
+        if (storedMessages) {
+          const messages = JSON.parse(storedMessages)
+          return messages.slice(0, limit)
+        }
+      } catch (localError) {
+        console.error("Error retrieving messages from localStorage:", localError)
+      }
+    }
+
+    // Default messages if both server and localStorage fail
+    return getDefaultMessages().slice(0, limit)
+  }
+}
+
+// Send a new message
+export async function sendUserMessage(message: string) {
+  try {
+    // Try to send to server first
+    const response = await apiRequest("messages", {
+      method: "POST",
+      body: JSON.stringify({ message }),
+    })
+
+    // If successful, return the server response
+    return response
+  } catch (error) {
+    console.warn("Falling back to localStorage for sending message:", error)
+
+    // Fallback to localStorage
+    if (isBrowser) {
+      try {
+        // Create new message
+        const newMsg = {
+          id: Date.now(),
+          message: message,
+          date: new Date().toLocaleDateString(),
+          time_ago: "just now",
+        }
+
+        // Get current messages
+        let messages = []
+        const storedMessages = localStorage.getItem("server_messages")
+
+        if (storedMessages) {
+          messages = JSON.parse(storedMessages)
+        } else {
+          messages = getDefaultMessages()
+        }
+
+        // Add to messages
+        messages = [newMsg, ...messages]
+
+        // Save back to localStorage
+        localStorage.setItem("server_messages", JSON.stringify(messages))
+
+        // Return success response
+        return { success: true, data: newMsg }
+      } catch (localError) {
+        console.error("Error saving message to localStorage:", localError)
+        throw localError
+      }
+    }
+
+    // If we're not in a browser or localStorage fails, re-throw the original error
+    throw error
+  }
+}
+
+// Delete a message
+export async function deleteUserMessage(messageId: number) {
+  try {
+    // Try to delete from server first
+    const response = await apiRequest("messages", {
+      method: "DELETE",
+      body: JSON.stringify({ id: messageId }),
+    })
+
+    // If successful, return the server response
+    return response
+  } catch (error) {
+    console.warn("Falling back to localStorage for deleting message:", error)
+
+    // Fallback to localStorage
+    if (isBrowser) {
+      try {
+        // Get current messages
+        const storedMessages = localStorage.getItem("server_messages")
+
+        if (storedMessages) {
+          let messages = JSON.parse(storedMessages)
+
+          // Filter out the message to delete
+          messages = messages.filter((msg: any) => msg.id !== messageId)
+
+          // Save back to localStorage
+          localStorage.setItem("server_messages", JSON.stringify(messages))
+
+          // Return success response
+          return { success: true }
+        }
+      } catch (localError) {
+        console.error("Error deleting message from localStorage:", localError)
+        throw localError
+      }
+    }
+
+    // If we're not in a browser or localStorage fails, re-throw the original error
+    throw error
+  }
+}
+
+// Default messages if no stored messages exist
+function getDefaultMessages() {
+  return [
     {
       id: 1,
       message: "Your art is so cute! I love your style so much! ♡",
       date: "2023-11-15",
+      time_ago: "2 weeks ago",
     },
     {
       id: 2,
       message: "Can you teach me how to draw like you? I'm a big fan!",
       date: "2023-11-14",
+      time_ago: "2 weeks ago",
     },
     {
       id: 3,
       message: "I saw your cosplay photos, they're amazing! What's your next costume?",
       date: "2023-11-12",
+      time_ago: "3 weeks ago",
     },
     {
       id: 4,
       message: "Do you play Genshin Impact? What's your UID?",
       date: "2023-11-10",
+      time_ago: "3 weeks ago",
     },
     {
       id: 5,
       message: "Your kawaii style is so inspiring! Keep up the great work!",
       date: "2023-11-08",
+      time_ago: "3 weeks ago",
     },
   ]
-
-  // Initialize storage with default messages
-  localStorage.setItem("server_messages", JSON.stringify(defaultMessages))
-  return defaultMessages
 }
 
-// Save messages to "server" (localStorage)
-const saveServerMessages = (messages: any[]) => {
-  try {
-    localStorage.setItem("server_messages", JSON.stringify(messages))
-    return true
-  } catch (error) {
-    console.error("Error saving messages:", error)
-    return false
-  }
-}
-
-// Initialize server messages
-let serverMessages = getServerMessages()
-
+// Other API functions remain the same
 export async function fetchUserData() {
-  // Simulate API request
   await delay(800)
-
-  // Return mock data
   return {
     name: "PIEN",
     age: 19,
@@ -78,10 +229,7 @@ export async function fetchUserData() {
 }
 
 export async function fetchUserProfile() {
-  // Simulate API request
   await delay(1000)
-
-  // Return mock data
   return {
     name: "PIEN",
     age: 19,
@@ -98,10 +246,7 @@ export async function fetchUserProfile() {
 }
 
 export async function fetchDniData() {
-  // Simulate API request
   await delay(700)
-
-  // Return mock data
   return {
     title: "Do Not Interact",
     items: [
@@ -116,10 +261,7 @@ export async function fetchDniData() {
 }
 
 export async function fetchByfData() {
-  // Simulate API request
   await delay(600)
-
-  // Return mock data
   return {
     title: "Before You Follow",
     items: [
@@ -134,10 +276,7 @@ export async function fetchByfData() {
 }
 
 export async function fetchFavsData() {
-  // Simulate API request
   await delay(900)
-
-  // Return mock data
   return {
     categories: [
       {
@@ -163,84 +302,3 @@ export async function fetchFavsData() {
     ],
   }
 }
-
-export async function fetchRecentMessages() {
-  // Simulate API request
-  await delay(800)
-
-  // Get messages from "server"
-  serverMessages = getServerMessages()
-
-  // Return most recent 3 messages
-  return serverMessages.slice(0, 3)
-}
-
-export async function fetchAllMessages() {
-  // Simulate API request
-  await delay(800)
-
-  // Get messages from "server"
-  serverMessages = getServerMessages()
-
-  // Return all messages
-  return serverMessages
-}
-
-export async function sendUserMessage(message: string) {
-  // Simulate API request
-  await delay(1000)
-
-  // Create new message
-  const newMsg = {
-    id: Date.now(),
-    message: message,
-    date: new Date().toLocaleDateString(),
-  }
-
-  // Get current messages
-  serverMessages = getServerMessages()
-
-  // Add to server storage
-  serverMessages = [newMsg, ...serverMessages]
-
-  // Save back to "server"
-  saveServerMessages(serverMessages)
-
-  // Return success response
-  return { success: true }
-}
-
-// In a real PHP implementation, this would be a PHP script that handles
-// storing messages in a database. Here's how it would look:
-/*
-<?php
-// messages.php
-header('Content-Type: application/json');
-
-// Connect to database
-$conn = new mysqli('localhost', 'username', 'password', 'database');
-
-if ($_SERVER['REQUEST_METHOD'] === 'GET') {
-    // Get messages
-    $result = $conn->query("SELECT * FROM messages ORDER BY id DESC");
-    $messages = [];
-    
-    while($row = $result->fetch_assoc()) {
-        $messages[] = $row;
-    }
-    
-    echo json_encode($messages);
-}
-else if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    // Add new message
-    $data = json_decode(file_get_contents('php://input'), true);
-    $message = $conn->real_escape_string($data['message']);
-    
-    $conn->query("INSERT INTO messages (message, date) VALUES ('$message', NOW())");
-    
-    echo json_encode(['success' => true, 'id' => $conn->insert_id]);
-}
-
-$conn->close();
-?>
-*/

@@ -1,21 +1,19 @@
 "use client"
 
-import type React from "react"
-
 import { useState, useEffect } from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { motion } from "framer-motion"
 import { fetchUserProfile } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
+import { Home, MessageSquare, Camera, Gift, Heart, Star, X } from "lucide-react"
 
 export default function ProfilePage() {
   const [profile, setProfile] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showHearts, setShowHearts] = useState(false)
-  const [message, setMessage] = useState("")
-  const [showNotification, setShowNotification] = useState(false)
 
   useEffect(() => {
     const loadData = async () => {
@@ -40,30 +38,6 @@ export default function ProfilePage() {
     setTimeout(() => setShowHearts(false), 2000)
   }
 
-  const sendMessage = async () => {
-    if (message.trim() === "") return
-
-    try {
-      // In a real app, you would send this to a server
-      // await sendUserMessage(message)
-      console.log("Message sent:", message)
-
-      setMessage("")
-      setShowNotification(true)
-      setTimeout(() => {
-        setShowNotification(false)
-      }, 3000)
-    } catch (err) {
-      console.error("Failed to send message:", err)
-    }
-  }
-
-  const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === "Enter") {
-      sendMessage()
-    }
-  }
-
   if (loading) {
     return <LoadingSpinner />
   }
@@ -80,6 +54,32 @@ export default function ProfilePage() {
       </div>
     )
   }
+
+  // Site directory links
+  const siteLinks = [
+    { path: "/", label: "Home", icon: <Home className="w-4 h-4" />, description: "Return to the homepage" },
+    {
+      path: "/messages",
+      label: "Messages",
+      icon: <MessageSquare className="w-4 h-4" />,
+      description: "Send and view messages",
+    },
+    {
+      path: "/photobooth",
+      label: "Photobooth",
+      icon: <Camera className="w-4 h-4" />,
+      description: "Take cute photos with filters",
+    },
+    {
+      path: "/gacha",
+      label: "Daily Gacha",
+      icon: <Gift className="w-4 h-4" />,
+      description: "Get your daily word of affirmation",
+    },
+    { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" />, description: "Before You Follow information" },
+    { path: "/dni", label: "DNI", icon: <X className="w-4 h-4" />, description: "Do Not Interact guidelines" },
+    { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" />, description: "My favorite things" },
+  ]
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
@@ -209,44 +209,73 @@ export default function ProfilePage() {
                 day! I also enjoy collecting stationery and plushies.
               </p>
             </motion.div>
-
-            <motion.div
-              className="mt-6"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.8 }}
-            >
-              <p className="text-sm text-pink-600 dark:text-pink-400 mb-2">Send me a cute message:</p>
-              <div className="flex">
-                <input
-                  type="text"
-                  value={message}
-                  onChange={(e) => setMessage(e.target.value)}
-                  onKeyPress={handleKeyPress}
-                  className="flex-grow px-4 py-2 rounded-l-lg border border-pink-200 dark:border-[#3d3d5a] focus:outline-none focus:ring-2 focus:ring-pink-300 dark:bg-[#2d2d42] dark:text-white"
-                  placeholder="Type something cute..."
-                />
-                <motion.button
-                  className="button px-4 py-2 text-pink-600 dark:text-pink-300 font-medium rounded-r-lg"
-                  onClick={sendMessage}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <i className="fas fa-paper-plane"></i>
-                </motion.button>
-              </div>
-            </motion.div>
           </div>
         </motion.div>
 
-        {/* Message Notification */}
-        <div
-          className={`fixed bottom-4 right-4 bg-pink-100 dark:bg-[#2d2d42] border border-pink-300 dark:border-[#3d3d5a] text-pink-700 dark:text-pink-300 px-4 py-2 rounded-lg shadow-lg transition-opacity duration-300 ${
-            showNotification ? "opacity-100" : "opacity-0 pointer-events-none"
-          }`}
+        {/* Site Directory - New Section */}
+        <motion.div
+          className="mt-8"
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.8 }}
         >
-          Message sent! <i className="fas fa-check ml-1"></i>
-        </div>
+          <motion.h2
+            className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4 text-center"
+            initial={{ y: -10 }}
+            animate={{ y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            Site Directory <span className="text-pink-400">♡</span>
+          </motion.h2>
+
+          <motion.div
+            className="divider mb-6"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.9 }}
+          />
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+            {siteLinks.map((link, index) => (
+              <Link href={link.path} key={link.path}>
+                <motion.div
+                  className="bg-pink-50 dark:bg-[#2d2d42] p-3 rounded-xl flex items-center gap-3 hover:bg-pink-100 dark:hover:bg-[#3d3d5a] transition-colors"
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 1.0 + index * 0.1 }}
+                  whileHover={{ scale: 1.02 }}
+                  whileTap={{ scale: 0.98 }}
+                >
+                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-pink-600 dark:text-pink-300">{link.icon}</span>
+                  </div>
+                  <div>
+                    <p className="font-medium text-pink-700 dark:text-pink-300">{link.label}</p>
+                    <p className="text-xs text-pink-500 dark:text-pink-400">{link.description}</p>
+                  </div>
+                </motion.div>
+              </Link>
+            ))}
+          </div>
+        </motion.div>
+
+        {/* Decorative elements */}
+        <motion.div
+          className="absolute -top-3 -right-3 w-8 h-8 bg-pink-300 dark:bg-pink-500 rounded-full flex items-center justify-center text-white hidden md:flex"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 1.2, type: "spring" }}
+        >
+          ♡
+        </motion.div>
+        <motion.div
+          className="absolute -bottom-3 -left-3 w-8 h-8 bg-pink-300 dark:bg-pink-500 rounded-full flex items-center justify-center text-white hidden md:flex"
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ delay: 1.3, type: "spring" }}
+        >
+          ♡
+        </motion.div>
       </motion.div>
     </div>
   )

@@ -22,6 +22,7 @@ import {
   SkipBack,
   Volume2,
   VolumeX,
+  Gift,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useMusicPlayer } from "@/hooks/use-music-player"
@@ -35,6 +36,7 @@ const pages = [
   { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" /> },
   { path: "/messages", label: "Messages", icon: <MessageSquare className="w-4 h-4" /> },
   { path: "/photobooth", label: "Photobooth", icon: <Camera className="w-4 h-4" /> },
+  { path: "/gacha", label: "Gacha", icon: <Gift className="w-4 h-4" /> },
 ]
 
 export function TaskBar() {
@@ -43,6 +45,8 @@ export function TaskBar() {
   const [time, setTime] = useState("")
   const [showMusicPlayer, setShowMusicPlayer] = useState(false)
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
+  const [reorderEnabled, setReorderEnabled] = useState(false)
+  const [queueItems, setQueueItems] = useState<number[]>([])
   const musicPlayerRef = useRef<HTMLDivElement>(null)
 
   const {
@@ -67,6 +71,15 @@ export function TaskBar() {
     toggleMute,
     error,
   } = useMusicPlayer()
+
+  // Initialize queue items
+  useEffect(() => {
+    // Create an array of indices excluding the current song
+    const indices = Array.from({ length: songs.length }, (_, i) => i).filter((i) => i !== currentSongIndex)
+
+    // Get the first 10 items for the queue
+    setQueueItems(indices.slice(0, 10))
+  }, [currentSongIndex, songs.length])
 
   useEffect(() => {
     // Check if dark mode is enabled in localStorage
@@ -159,6 +172,29 @@ export function TaskBar() {
     // Calculate the new time based on the percentage
     const newTime = (newProgress / 100) * duration
     seekTo(newTime)
+  }
+
+  // Handle playing a song from the queue
+  const playQueueItem = (index: number) => {
+    const songIndex = queueItems[index]
+    setCurrentSongIndex(songIndex)
+
+    // Remove the played song from the queue
+    const newQueue = [...queueItems]
+    newQueue.splice(index, 1)
+
+    // Add a new song to the end if available
+    const allIndices = Array.from({ length: songs.length }, (_, i) => i)
+    const availableIndices = allIndices.filter(
+      (i) => i !== songIndex && !newQueue.includes(i) && i !== currentSongIndex,
+    )
+
+    if (availableIndices.length > 0) {
+      const randomIndex = Math.floor(Math.random() * availableIndices.length)
+      newQueue.push(availableIndices[randomIndex])
+    }
+
+    setQueueItems(newQueue)
   }
 
   return (
