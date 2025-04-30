@@ -9,11 +9,10 @@ export function LoadingSpinner() {
         <motion.div
           className="inline-block"
           animate={{ rotate: 360 }}
-          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 1, ease: "linear" }}
+          transition={{ repeat: Number.POSITIVE_INFINITY, duration: 0.8, ease: "linear" }}
         >
-          <div className="w-12 h-12 rounded-full border-4 border-pink-200 border-t-pink-500"></div>
+          <div className="w-10 h-10 rounded-full border-3 border-pink-200 border-t-pink-500"></div>
         </motion.div>
-        <p className="mt-4 text-pink-600 dark:text-pink-400">Loading kawaii content...</p>
       </div>
     </div>
   )

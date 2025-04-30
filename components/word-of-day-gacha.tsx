@@ -117,21 +117,22 @@ export function WordOfDayGacha() {
         <div ref={confettiRef} className="absolute inset-0 overflow-hidden pointer-events-none z-10"></div>
       )}
 
+      {/* Fixed card size with proper proportions */}
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="p-6 text-center">
           <h1 className="text-3xl font-bold text-pink-600 dark:text-pink-300 mb-6">
             Word of the Day <span className="text-pink-400">♡</span>
           </h1>
 
-          <p className="text-pink-600 dark:text-pink-400 mb-8">Your unique daily affirmation, just for you!</p>
+          <p className="text-pink-600 dark:text-pink-400 mb-6">Your unique daily affirmation, just for you!</p>
 
           <motion.div
-            className="gacha-container mb-8"
+            className="mb-8"
             animate={isAnimating ? { scale: [1, 0.9, 1.1, 1] } : {}}
             transition={{ duration: 0.5 }}
           >
-            <div className="gacha-box">
-              <div className="gacha-result bg-pink-100 dark:bg-[#2d2d42] p-8 rounded-xl">
+            <div className="bg-pink-100 dark:bg-[#2d2d42] p-6 rounded-xl min-h-[180px] flex items-center justify-center">
+              <div className="text-center">
                 <span className="text-4xl mb-4 block">💌</span>
                 <motion.p
                   key={currentWord}

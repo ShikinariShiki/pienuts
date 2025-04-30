@@ -200,6 +200,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [error, setError] = useState<string | null>(null)
   const [isFading, setIsFading] = useState(false)
   const [isFirstLoad, setIsFirstLoad] = useState(true)
+  const [nextAudioRef, setNextAudioRef] = useState<HTMLAudioElement | null>(null)
 
   // Use a ref to store the audio element
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -239,6 +240,154 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       setCurrentSongIndex(newIndex)
     } else {
       setCurrentSongIndex(0)
+    }
+  }
+
+  // Fade in function - SHORTENED DURATION
+  const fadeIn = () => {
+    if (!audioRef.current) return
+
+    setIsFading(true)
+    let vol = 0
+    audioRef.current.volume = vol
+
+    fadeIntervalRef.current = setInterval(() => {
+      if (!audioRef.current) return
+
+      vol += 0.1 // Increased step size for faster fade
+      if (vol >= volume) {
+        vol = volume
+        clearInterval(fadeIntervalRef.current!)
+        setIsFading(false)
+      }
+
+      audioRef.current.volume = isMuted ? 0 : vol
+    }, 50) // Reduced interval for faster fade
+  }
+
+  // Fade out function - SHORTENED DURATION
+  const fadeOut = () => {
+    if (!audioRef.current) return
+
+    setIsFading(true)
+    let vol = audioRef.current.volume
+
+    fadeIntervalRef.current = setInterval(() => {
+      if (!audioRef.current) return
+
+      vol -= 0.1 // Increased step size for faster fade
+      if (vol <= 0) {
+        vol = 0
+        clearInterval(fadeIntervalRef.current!)
+        setIsFading(false)
+
+        // After fade out completes, we can pause or change track
+        return true
+      }
+
+      audioRef.current.volume = vol
+      return false
+    }, 50) // Reduced interval for faster fade
+
+    return false // Not done fading yet
+  }
+
+  // Cross fade between tracks - IMPROVED AND SHORTENED
+  const crossFade = (nextIndex: number) => {
+    if (!audioRef.current) return
+
+    // Create a new audio element for the next track
+    const nextAudio = new Audio()
+    nextAudio.src = songs[nextIndex].src
+    nextAudio.volume = 0
+    nextAudio.load()
+
+    // Store the next audio element
+    setNextAudioRef(nextAudio)
+
+    // Start loading the next track
+    const loadPromise = nextAudio.play().catch((err) => {
+      console.error("Failed to preload next track:", err)
+      // Fall back to simple track switching
+      if (audioRef.current) {
+        audioRef.current.src = songs[nextIndex].src
+        audioRef.current.load()
+        audioRef.current.play().catch((err) => {
+          console.error("Play error during fallback:", err)
+        })
+      }
+      return null
+    })
+
+    if (loadPromise === null) return
+
+    // Start fading out current track
+    setIsFading(true)
+    let currentVol = audioRef.current.volume
+    let nextVol = 0
+
+    fadeIntervalRef.current = setInterval(() => {
+      if (!audioRef.current) {
+        clearInterval(fadeIntervalRef.current!)
+        return
+      }
+
+      // Decrease current track volume
+      currentVol -= 0.1 // Faster fade out
+      // Increase next track volume
+      nextVol += 0.1 // Faster fade in
+
+      if (currentVol <= 0) {
+        // Current track fade out complete
+        currentVol = 0
+        audioRef.current.pause()
+
+        // Continue fading in next track if needed
+        if (nextVol < volume) {
+          nextAudio.volume = isMuted ? 0 : nextVol
+        } else {
+          // Both fades complete
+          nextAudio.volume = isMuted ? 0 : volume
+          clearInterval(fadeIntervalRef.current!)
+          setIsFading(false)
+
+          // Replace the audio reference
+          audioRef.current = nextAudio
+        }
+      } else {
+        // Both fades in progress
+        audioRef.current.volume = isMuted ? 0 : currentVol
+        nextAudio.volume = isMuted ? 0 : Math.min(nextVol, volume)
+      }
+    }, 30) // Even faster interval for smoother crossfade
+  }
+
+  // Define nextSong and prevSong functions BEFORE they're used in useEffect
+  const nextSong = () => {
+    if (isShuffling) {
+      // Play a random song excluding the current one
+      let nextIndex
+      do {
+        nextIndex = Math.floor(Math.random() * songs.length)
+      } while (nextIndex === currentSongIndex && songs.length > 1)
+      setCurrentSongIndex(nextIndex)
+    } else {
+      // Go to next song
+      setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1))
+    }
+  }
+
+  const prevSong = () => {
+    if (isShuffling) {
+      // Play a random song excluding the current one
+      let nextIndex
+      do {
+        nextIndex = Math.floor(Math.random() * songs.length)
+      } while (nextIndex === currentSongIndex && songs.length > 1)
+      setCurrentSongIndex(nextIndex)
+    } else {
+      // Go to previous song
+      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1))
     }
   }
 
@@ -292,128 +441,17 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         audioRef.current.src = ""
       }
 
+      if (nextAudioRef) {
+        nextAudioRef.pause()
+        nextAudioRef.src = ""
+      }
+
       // Clear any fade intervals
       if (fadeIntervalRef.current) {
         clearInterval(fadeIntervalRef.current)
       }
     }
   }, [])
-
-  // Fade in function
-  const fadeIn = () => {
-    if (!audioRef.current) return
-
-    setIsFading(true)
-    let vol = 0
-    audioRef.current.volume = vol
-
-    fadeIntervalRef.current = setInterval(() => {
-      if (!audioRef.current) return
-
-      vol += 0.05
-      if (vol >= volume) {
-        vol = volume
-        clearInterval(fadeIntervalRef.current!)
-        setIsFading(false)
-      }
-
-      audioRef.current.volume = isMuted ? 0 : vol
-    }, 100)
-  }
-
-  // Fade out function
-  const fadeOut = () => {
-    if (!audioRef.current) return
-
-    setIsFading(true)
-    let vol = audioRef.current.volume
-
-    fadeIntervalRef.current = setInterval(() => {
-      if (!audioRef.current) return
-
-      vol -= 0.05
-      if (vol <= 0) {
-        vol = 0
-        clearInterval(fadeIntervalRef.current!)
-        setIsFading(false)
-
-        // After fade out completes, we can pause or change track
-        return true
-      }
-
-      audioRef.current.volume = vol
-      return false
-    }, 100)
-
-    return false // Not done fading yet
-  }
-
-  // Cross fade between tracks - improved for smoother transitions
-  const crossFade = (nextIndex: number) => {
-    if (!audioRef.current) return
-
-    // Create a new audio element for the next track
-    const nextAudio = new Audio()
-    nextAudio.src = songs[nextIndex].src
-    nextAudio.volume = 0
-    nextAudio.load()
-
-    // Start loading the next track
-    const loadPromise = nextAudio.play().catch((err) => {
-      console.error("Failed to preload next track:", err)
-      // Fall back to simple track switching
-      if (audioRef.current) {
-        audioRef.current.src = songs[nextIndex].src
-        audioRef.current.load()
-        audioRef.current.play().catch((err) => {
-          console.error("Play error during fallback:", err)
-        })
-      }
-      return null
-    })
-
-    if (loadPromise === null) return
-
-    // Start fading out current track
-    setIsFading(true)
-    let currentVol = audioRef.current.volume
-    let nextVol = 0
-
-    fadeIntervalRef.current = setInterval(() => {
-      if (!audioRef.current) {
-        clearInterval(fadeIntervalRef.current!)
-        return
-      }
-
-      // Decrease current track volume
-      currentVol -= 0.05
-      // Increase next track volume
-      nextVol += 0.05
-
-      if (currentVol <= 0) {
-        // Current track fade out complete
-        currentVol = 0
-        audioRef.current.pause()
-
-        // Continue fading in next track if needed
-        if (nextVol < volume) {
-          nextAudio.volume = isMuted ? 0 : nextVol
-        } else {
-          // Both fades complete
-          nextAudio.volume = isMuted ? 0 : volume
-          clearInterval(fadeIntervalRef.current!)
-          setIsFading(false)
-
-          // Replace the audio reference
-          audioRef.current = nextAudio
-        }
-      } else {
-        // Both fades in progress
-        audioRef.current.volume = isMuted ? 0 : currentVol
-        nextAudio.volume = isMuted ? 0 : Math.min(nextVol, volume)
-      }
-    }, 50) // Faster interval for smoother crossfade
-  }
 
   // Handle song changes and loading
   useEffect(() => {
@@ -468,7 +506,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       setError(`Error setting up audio: ${err instanceof Error ? err.message : String(err)}`)
       setIsPlaying(false)
     }
-  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping, isFirstLoad, songs])
+  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping, isFirstLoad, songs, isShuffling])
 
   // Set up event listeners
   useEffect(() => {
@@ -489,12 +527,20 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     }
 
     const handleEnded = () => {
+      // Fix for continuous playback
+      console.log("Song ended, playing next song")
+
       if (isShuffling) {
         // Play a random song excluding the current one
         let nextIndex
         do {
           nextIndex = Math.floor(Math.random() * songs.length)
         } while (nextIndex === currentSongIndex && songs.length > 1)
+
+        // Use crossfade for smoother transition
+        crossFade(nextIndex)
+
+        // Update current song index
         setCurrentSongIndex(nextIndex)
       } else if (!isLooping) {
         // Go to next song if not looping
@@ -512,6 +558,9 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       console.error("Audio error:", e)
       setError(`Audio error: ${audio.error?.message || "Unknown error"}`)
       setIsPlaying(false)
+
+      // Try to recover by playing next song
+      nextSong()
     }
 
     const handleCanPlay = () => {
@@ -534,12 +583,12 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     return () => {
       // Remove event listeners on cleanup
       audio.removeEventListener("timeupdate", handleTimeUpdate)
-      audio.removeEventListener("loadedmetadata", handleTimeUpdate)
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
       audio.removeEventListener("ended", handleEnded)
       audio.removeEventListener("error", handleError)
       audio.removeEventListener("canplay", handleCanPlay)
     }
-  }, [currentSongIndex, isLooping, isPlaying, isShuffling, songs.length])
+  }, [currentSongIndex, isLooping, isPlaying, isShuffling, songs.length, nextSong])
 
   const togglePlay = () => {
     if (!audioRef.current) return
@@ -572,7 +621,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
             if (audioRef.current) {
               audioRef.current.pause()
             }
-          }, 1500) // Slightly longer than the fade duration
+          }, 500) // Shortened from 1500ms
         }
       }
 
@@ -612,34 +661,6 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       }
       return newIsMuted
     })
-  }
-
-  const nextSong = () => {
-    if (isShuffling) {
-      // Play a random song excluding the current one
-      let nextIndex
-      do {
-        nextIndex = Math.floor(Math.random() * songs.length)
-      } while (nextIndex === currentSongIndex && songs.length > 1)
-      setCurrentSongIndex(nextIndex)
-    } else {
-      // Go to next song
-      setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1))
-    }
-  }
-
-  const prevSong = () => {
-    if (isShuffling) {
-      // Play a random song excluding the current one
-      let nextIndex
-      do {
-        nextIndex = Math.floor(Math.random() * songs.length)
-      } while (nextIndex === currentSongIndex && songs.length > 1)
-      setCurrentSongIndex(nextIndex)
-    } else {
-      // Go to previous song
-      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1))
-    }
   }
 
   return (

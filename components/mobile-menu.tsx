@@ -55,18 +55,18 @@ export function MobileMenu() {
       <AnimatePresence>
         {isOpen && (
           <>
-            {/* Overlay Background */}
+            {/* Overlay Background with pink transparent color */}
             <motion.div
-              className="fixed inset-0 bg-black/50 z-40"
+              className="fixed inset-0 bg-pink-500/40 z-40"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={closeMenu}
             />
 
-            {/* Menu Panel - Changed to full screen */}
+            {/* Menu Panel with glassmorphism effect - IMPORTANT: changed from inset-0 to top-12 to preserve header */}
             <motion.div
-              className="fixed inset-0 bg-white dark:bg-[#16213e] z-50 flex flex-col"
+              className="fixed top-12 inset-x-0 bottom-0 bg-white/90 dark:bg-[#16213e]/90 backdrop-blur-md z-40 flex flex-col h-[calc(100vh-3rem)]"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -86,8 +86,8 @@ export function MobileMenu() {
                 </button>
               </div>
 
-              {/* Navigation */}
-              <nav className="flex-grow p-6">
+              {/* Navigation with scroll */}
+              <nav className="flex-grow p-6 overflow-y-auto">
                 <ul className="space-y-6">
                   {menuItems.map((item) => (
                     <li key={item.path}>
@@ -100,7 +100,7 @@ export function MobileMenu() {
                         }`}
                         onClick={closeMenu}
                       >
-                        <span className="mr-4 text-2xl">{item.icon}</span>
+                        <span className="mr-4">{item.icon}</span>
                         {item.label}
                         {pathname === item.path && (
                           <motion.div
