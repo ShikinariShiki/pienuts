@@ -64,9 +64,9 @@ export function MobileMenu() {
               onClick={closeMenu}
             />
 
-            {/* Menu Panel - Changed to left side */}
+            {/* Menu Panel - Changed to full screen */}
             <motion.div
-              className="fixed top-0 left-0 bottom-0 w-64 bg-white dark:bg-[#16213e] z-50 shadow-lg flex flex-col"
+              className="fixed inset-0 bg-white dark:bg-[#16213e] z-50 flex flex-col"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -87,24 +87,24 @@ export function MobileMenu() {
               </div>
 
               {/* Navigation */}
-              <nav className="flex-grow overflow-y-auto p-4">
-                <ul className="space-y-3">
+              <nav className="flex-grow p-6">
+                <ul className="space-y-6">
                   {menuItems.map((item) => (
                     <li key={item.path}>
                       <Link
                         href={item.path}
-                        className={`flex items-center p-2 rounded-lg transition-colors ${
+                        className={`flex items-center p-3 rounded-lg transition-colors text-lg ${
                           pathname === item.path
                             ? "bg-pink-100 dark:bg-[#2d2d42] text-pink-700 dark:text-pink-300"
                             : "hover:bg-pink-50 dark:hover:bg-[#1a1a2e] text-gray-600 dark:text-gray-300"
                         }`}
                         onClick={closeMenu}
                       >
-                        <span className="mr-3">{item.icon}</span>
+                        <span className="mr-4 text-2xl">{item.icon}</span>
                         {item.label}
                         {pathname === item.path && (
                           <motion.div
-                            className="ml-auto w-1.5 h-1.5 rounded-full bg-pink-400 dark:bg-pink-500"
+                            className="ml-auto w-2 h-2 rounded-full bg-pink-400 dark:bg-pink-500"
                             layoutId="activeMenuIndicator"
                           />
                         )}

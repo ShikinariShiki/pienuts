@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
+import { RefreshCw } from "lucide-react"
 
 // Words of affirmation
 const affirmations = [
@@ -41,30 +42,25 @@ const affirmations = [
 ]
 
 export function WordOfDayGacha() {
-  const [isOpen, setIsOpen] = useState(false)
-  const [isSpinning, setIsSpinning] = useState(false)
   const [currentWord, setCurrentWord] = useState("")
-  const [hasOpened, setHasOpened] = useState(false)
   const [showConfetti, setShowConfetti] = useState(false)
   const confettiRef = useRef<HTMLDivElement>(null)
+  const [isAnimating, setIsAnimating] = useState(false)
 
-  // Check if user has already opened gacha today
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const lastOpenDate = localStorage.getItem("lastGachaDate")
-      const today = new Date().toDateString()
+  // Generate a random word based on device ID
+  const getRandomWord = () => {
+    // Get all available words
+    const availableWords = [...affirmations]
 
-      if (lastOpenDate === today) {
-        // User has already opened gacha today
-        const savedWord = localStorage.getItem("todaysGachaWord")
-        if (savedWord) {
-          setCurrentWord(savedWord)
-          setIsOpen(true)
-          setHasOpened(true)
-        }
-      }
+    // Shuffle array using Fisher-Yates algorithm
+    for (let i = availableWords.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1))
+      ;[availableWords[i], availableWords[j]] = [availableWords[j], availableWords[i]]
     }
-  }, [])
+
+    // Return the first word from shuffled array
+    return availableWords[0]
+  }
 
   // Create confetti elements
   const createConfetti = () => {
@@ -86,38 +82,32 @@ export function WordOfDayGacha() {
     }
   }
 
-  // Open the gacha
-  const openGacha = () => {
-    if (hasOpened) return
+  // Initialize word on first load
+  useEffect(() => {
+    setCurrentWord(getRandomWord())
+  }, [])
 
-    setIsSpinning(true)
+  // Handle reshuffling the word
+  const handleReshuffle = () => {
+    if (isAnimating) return
 
-    // Simulate spinning animation
+    setIsAnimating(true)
+
+    // Trigger confetti
+    setShowConfetti(true)
+    createConfetti()
+
+    // Animate out
     setTimeout(() => {
-      // Get random affirmation
-      const randomIndex = Math.floor(Math.random() * affirmations.length)
-      const word = affirmations[randomIndex]
-
-      setCurrentWord(word)
-      setIsSpinning(false)
-      setIsOpen(true)
-      setHasOpened(true)
-      setShowConfetti(true)
-
-      // Save to localStorage
-      if (typeof window !== "undefined") {
-        localStorage.setItem("lastGachaDate", new Date().toDateString())
-        localStorage.setItem("todaysGachaWord", word)
-      }
-
-      // Create confetti effect
-      createConfetti()
+      // Get new word
+      setCurrentWord(getRandomWord())
 
       // Hide confetti after animation
       setTimeout(() => {
         setShowConfetti(false)
-      }, 5000)
-    }, 2000)
+        setIsAnimating(false)
+      }, 3000)
+    }, 300)
   }
 
   return (
@@ -133,61 +123,41 @@ export function WordOfDayGacha() {
             Word of the Day <span className="text-pink-400">♡</span>
           </h1>
 
-          <p className="text-pink-600 dark:text-pink-400 mb-8">
-            Get your daily word of affirmation! You can open one gacha per day.
-          </p>
+          <p className="text-pink-600 dark:text-pink-400 mb-8">Your unique daily affirmation, just for you!</p>
 
-          <div className="gacha-container mb-16">
-            <motion.div
-              className={`gacha-box ${isSpinning ? "spinning" : ""}`}
-              animate={isOpen ? { rotateY: 180 } : { rotateY: 0 }}
-              transition={{ duration: 0.8, type: "spring" }}
-            >
-              <div className="gacha-face gacha-front">
-                {!hasOpened ? (
-                  <div className="flex flex-col items-center justify-center">
-                    <span className="text-4xl mb-2">✨</span>
-                    <p className="text-lg font-medium">Tap to open!</p>
-                  </div>
-                ) : (
-                  <div className="flex flex-col items-center justify-center">
-                    <span className="text-4xl mb-2">✨</span>
-                    <p className="text-lg font-medium">Already opened today!</p>
-                  </div>
-                )}
+          <motion.div
+            className="gacha-container mb-8"
+            animate={isAnimating ? { scale: [1, 0.9, 1.1, 1] } : {}}
+            transition={{ duration: 0.5 }}
+          >
+            <div className="gacha-box">
+              <div className="gacha-result bg-pink-100 dark:bg-[#2d2d42] p-8 rounded-xl">
+                <span className="text-4xl mb-4 block">💌</span>
+                <motion.p
+                  key={currentWord}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ duration: 0.5 }}
+                  className="text-lg text-pink-700 dark:text-pink-300"
+                >
+                  {currentWord}
+                </motion.p>
               </div>
-
-              <div className="gacha-face gacha-back">
-                <div className="gacha-result">
-                  <span className="text-4xl mb-4 block">💌</span>
-                  <p className="text-lg">{currentWord}</p>
-                </div>
-              </div>
-            </motion.div>
-
-            <div className="gacha-button">
-              <Button
-                onClick={openGacha}
-                disabled={hasOpened || isSpinning}
-                className="px-6 py-2 text-pink-600 dark:text-pink-300 font-medium"
-              >
-                {isSpinning ? "Opening..." : hasOpened ? "Come back tomorrow" : "Open Gacha"}
-              </Button>
             </div>
-          </div>
+          </motion.div>
 
-          {isOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.5 }}
-              className="mt-4"
+          <motion.div className="flex justify-center">
+            <Button
+              onClick={handleReshuffle}
+              disabled={isAnimating}
+              className="px-6 py-2 text-pink-600 dark:text-pink-300 font-medium flex items-center space-x-2"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
             >
-              <p className="text-sm text-pink-500 dark:text-pink-400">
-                Remember this affirmation throughout your day! ♡
-              </p>
-            </motion.div>
-          )}
+              <RefreshCw className="w-4 h-4 mr-2" />
+              <span>{isAnimating ? "Reshuffling..." : "Reshuffle"}</span>
+            </Button>
+          </motion.div>
         </CardContent>
       </Card>
     </div>

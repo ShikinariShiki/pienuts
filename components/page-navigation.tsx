@@ -19,7 +19,13 @@ export function PageNavigation() {
 
   // Get prev and next pages
   const prevPage = currentIndex > 0 ? pageOrder[currentIndex - 1] : null
-  const nextPage = currentIndex < pageOrder.length - 1 ? pageOrder[currentIndex + 1] : null
+  // If we're on the last page (gacha), next should go back to home
+  const nextPage =
+    currentIndex < pageOrder.length - 1
+      ? pageOrder[currentIndex + 1]
+      : currentIndex === pageOrder.length - 1
+        ? pageOrder[0]
+        : null
 
   // Get page names for display
   const getPageName = (path: string) => {
@@ -79,7 +85,9 @@ export function PageNavigation() {
             whileHover={{ x: 3 }}
             whileTap={{ scale: 0.95 }}
           >
-            <span className="text-sm">{getPageName(nextPage)}</span>
+            <span className="text-sm">
+              {nextPage === "/" && currentIndex === pageOrder.length - 1 ? "Back to Home" : getPageName(nextPage)}
+            </span>
             <ChevronRight className="w-4 h-4 ml-1" />
           </motion.div>
         </Link>

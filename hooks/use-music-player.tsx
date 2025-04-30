@@ -212,17 +212,20 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     updatedSongs.splice(toIndex, 0, movedSong)
 
     // If the current song was moved, update the current song index
+    let newCurrentIndex = currentSongIndex
     if (currentSongIndex === fromIndex) {
-      setCurrentSongIndex(toIndex)
+      newCurrentIndex = toIndex
     } else if (
       (fromIndex < currentSongIndex && toIndex >= currentSongIndex) ||
       (fromIndex > currentSongIndex && toIndex <= currentSongIndex)
     ) {
       // Adjust current song index if the moved song crossed over it
-      setCurrentSongIndex(fromIndex < currentSongIndex ? currentSongIndex - 1 : currentSongIndex + 1)
+      newCurrentIndex = fromIndex < currentSongIndex ? currentSongIndex - 1 : currentSongIndex + 1
     }
 
+    // Update songs first, then update current index to maintain playback
     setSongs(updatedSongs)
+    setCurrentSongIndex(newCurrentIndex)
   }
 
   // Function to reset playlist to original order
@@ -394,10 +397,10 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
 
         // Continue fading in next track if needed
         if (nextVol < volume) {
-          nextAudio.volume = nextVol
+          nextAudio.volume = isMuted ? 0 : nextVol
         } else {
           // Both fades complete
-          nextAudio.volume = volume
+          nextAudio.volume = isMuted ? 0 : volume
           clearInterval(fadeIntervalRef.current!)
           setIsFading(false)
 
@@ -406,8 +409,8 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         }
       } else {
         // Both fades in progress
-        audioRef.current.volume = currentVol
-        nextAudio.volume = Math.min(nextVol, volume)
+        audioRef.current.volume = isMuted ? 0 : currentVol
+        nextAudio.volume = isMuted ? 0 : Math.min(nextVol, volume)
       }
     }, 50) // Faster interval for smoother crossfade
   }
@@ -495,7 +498,13 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         setCurrentSongIndex(nextIndex)
       } else if (!isLooping) {
         // Go to next song if not looping
-        setCurrentSongIndex((prev) => (prev === songs.length - 1 ? 0 : prev + 1))
+        const nextIndex = currentSongIndex === songs.length - 1 ? 0 : currentSongIndex + 1
+
+        // Use crossfade for smoother transition
+        crossFade(nextIndex)
+
+        // Update current song index
+        setCurrentSongIndex(nextIndex)
       }
     }
 

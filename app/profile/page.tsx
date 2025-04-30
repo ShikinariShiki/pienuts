@@ -181,6 +181,93 @@ export default function ProfilePage() {
           </div>
         </motion.div>
 
+        {/* Add more detailed sections */}
+        <motion.div
+          className="mt-6"
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.8 }}
+        >
+          <motion.h2
+            className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4"
+            initial={{ y: -10 }}
+            animate={{ y: 0 }}
+            transition={{ type: "spring", stiffness: 300, damping: 20 }}
+          >
+            More About Me <span className="text-pink-400">♡</span>
+          </motion.h2>
+
+          <motion.div
+            className="divider mb-6"
+            initial={{ scaleX: 0 }}
+            animate={{ scaleX: 1 }}
+            transition={{ delay: 0.9 }}
+          />
+
+          <div className="space-y-4">
+            <motion.div
+              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.0 }}
+            >
+              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
+                <span className="mr-2">🎨</span> Art Style
+              </h3>
+              <p className="text-sm text-pink-600 dark:text-pink-400">
+                I specialize in kawaii digital art with soft pastel colors. My style is inspired by anime and cute
+                character designs. I love adding small details that make each piece unique and full of personality!
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.1 }}
+            >
+              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
+                <span className="mr-2">🎮</span> Gaming Life
+              </h3>
+              <p className="text-sm text-pink-600 dark:text-pink-400">
+                I'm an avid gamer who loves RPGs and adventure games. Currently obsessed with Honkai Star Rail and
+                Genshin Impact! I stream occasionally and love connecting with other gamers who share similar interests.
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.2 }}
+            >
+              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
+                <span className="mr-2">✨</span> Future Goals
+              </h3>
+              <p className="text-sm text-pink-600 dark:text-pink-400">
+                I'm working towards publishing my own manga and creating a line of kawaii merchandise featuring my
+                original characters. I also hope to attend more conventions and connect with fans in person!
+              </p>
+            </motion.div>
+
+            <motion.div
+              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 1.3 }}
+            >
+              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
+                <span className="mr-2">💌</span> Contact & Commissions
+              </h3>
+              <p className="text-sm text-pink-600 dark:text-pink-400">
+                I'm currently open for art commissions! If you'd like custom artwork in my style, feel free to reach out
+                via email or my social media accounts. I typically respond within 48 hours and love discussing creative
+                projects!
+              </p>
+            </motion.div>
+          </div>
+        </motion.div>
+
         {/* Decorative elements */}
         <motion.div
           className="absolute -top-3 -right-3 w-8 h-8 bg-pink-300 dark:bg-pink-500 rounded-full flex items-center justify-center text-white hidden md:flex"

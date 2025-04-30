@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { motion } from "framer-motion"
-import { fetchUserData, fetchRecentMessages } from "@/lib/api"
+import { fetchUserData } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
 import { User, X, Heart, Star, MessageSquare, Gift } from "lucide-react"
@@ -12,7 +12,6 @@ import { PageNavigation } from "@/components/page-navigation"
 
 export default function Home() {
   const [userData, setUserData] = useState<any>(null)
-  const [messages, setMessages] = useState<any[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [showHearts, setShowHearts] = useState(false)
@@ -21,9 +20,8 @@ export default function Home() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const [userData, messagesData] = await Promise.all([fetchUserData(), fetchRecentMessages()])
+        const userData = await fetchUserData()
         setUserData(userData)
-        setMessages(messagesData.slice(0, 3)) // Show only 3 recent messages
         setError(null)
       } catch (err) {
         setError("Failed to load data. Please try again!")
@@ -139,94 +137,89 @@ export default function Home() {
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.3 }}
           >
-            <div className="grid grid-cols-3 gap-3 mb-4">
-              <Link href="/dni">
-                <motion.div
-                  className="bg-pink-100 dark:bg-[#2d2d42] p-3 rounded-xl text-center hover:shadow-md transition-shadow border-2 border-pink-200 dark:border-pink-800/30"
-                  whileHover={{ y: -5, scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                >
-                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-1">
-                    <span className="text-pink-600 dark:text-pink-300 text-lg">✘</span>
-                  </div>
-                  <p className="text-xs font-bold text-pink-700 dark:text-pink-300">DNI</p>
-                </motion.div>
-              </Link>
-
-              <Link href="/byf">
-                <motion.div
-                  className="bg-pink-100 dark:bg-[#2d2d42] p-3 rounded-xl text-center hover:shadow-md transition-shadow border-2 border-pink-200 dark:border-pink-800/30"
-                  whileHover={{ y: -5, scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                >
-                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-1">
-                    <span className="text-pink-600 dark:text-pink-300 text-lg">♡</span>
-                  </div>
-                  <p className="text-xs font-bold text-pink-700 dark:text-pink-300">BYF</p>
-                </motion.div>
-              </Link>
-
-              <Link href="/favs">
-                <motion.div
-                  className="bg-pink-100 dark:bg-[#2d2d42] p-3 rounded-xl text-center hover:shadow-md transition-shadow border-2 border-pink-200 dark:border-pink-800/30"
-                  whileHover={{ y: -5, scale: 1.03 }}
-                  transition={{ type: "spring", stiffness: 300, damping: 10 }}
-                >
-                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center mx-auto mb-1">
-                    <span className="text-pink-600 dark:text-pink-300 text-lg">★</span>
-                  </div>
-                  <p className="text-xs font-bold text-pink-700 dark:text-pink-300">FAVS</p>
-                </motion.div>
-              </Link>
-            </div>
-
+            {/* Site Directory */}
             <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl border-2 border-pink-200 dark:border-pink-800/30"
+              className="h-full flex flex-col"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: 0.4 }}
+              transition={{ delay: 0.4 }}
             >
-              <div className="flex items-center justify-between mb-3">
-                <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300">
-                  Recent Messages <span className="text-pink-400 dark:text-pink-200">♡</span>
-                </h3>
-                <Link href="/messages">
-                  <span className="text-xs text-pink-500 dark:text-pink-400 hover:underline">View All</span>
-                </Link>
-              </div>
+              <motion.h2
+                className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4"
+                initial={{ y: -10 }}
+                animate={{ y: 0 }}
+                transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              >
+                Site Directory <span className="text-pink-400">♡</span>
+              </motion.h2>
 
-              <div className="space-y-2">
-                {messages.length > 0 ? (
-                  messages.map((msg, index) => (
+              <motion.div
+                className="divider mb-4"
+                initial={{ scaleX: 0 }}
+                animate={{ scaleX: 1 }}
+                transition={{ delay: 0.5 }}
+              />
+
+              <div className="space-y-3 flex-grow">
+                {[
+                  {
+                    path: "/profile",
+                    label: "Profile",
+                    icon: <User className="w-4 h-4" />,
+                    description: "View my profile",
+                  },
+                  {
+                    path: "/dni",
+                    label: "DNI",
+                    icon: <X className="w-4 h-4" />,
+                    description: "Do Not Interact guidelines",
+                  },
+                  {
+                    path: "/byf",
+                    label: "BYF",
+                    icon: <Heart className="w-4 h-4" />,
+                    description: "Before You Follow information",
+                  },
+                  {
+                    path: "/favs",
+                    label: "FAVS",
+                    icon: <Star className="w-4 h-4" />,
+                    description: "My favorite things",
+                  },
+                  {
+                    path: "/messages",
+                    label: "Messages",
+                    icon: <MessageSquare className="w-4 h-4" />,
+                    description: "Send and view messages",
+                  },
+                  {
+                    path: "/gacha",
+                    label: "Daily Word",
+                    icon: <Gift className="w-4 h-4" />,
+                    description: "Get your word of affirmation",
+                  },
+                ].map((link, index) => (
+                  <Link href={link.path} key={link.path}>
                     <motion.div
-                      key={msg.id}
-                      className="bg-white dark:bg-[#1a1a2e] p-2 rounded-lg text-xs text-pink-700 dark:text-pink-300 border border-pink-100 dark:border-[#2d2d42]"
-                      initial={{ opacity: 0, x: -5 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.3, delay: 0.5 + index * 0.1 }}
+                      className="bg-pink-50 dark:bg-[#2d2d42] p-3 rounded-xl flex items-center gap-3 hover:bg-pink-100 dark:hover:bg-[#3d3d5a] transition-colors"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.6 + index * 0.1 }}
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
                     >
-                      {msg.message}
-                      <div className="text-right text-pink-400 dark:text-pink-300 text-[10px] mt-1">{msg.date}</div>
+                      <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
+                        <span className="text-pink-600 dark:text-pink-300">{link.icon}</span>
+                      </div>
+                      <div>
+                        <p className="font-medium text-pink-700 dark:text-pink-300">{link.label}</p>
+                        <p className="text-xs text-pink-500 dark:text-pink-400">{link.description}</p>
+                      </div>
                     </motion.div>
-                  ))
-                ) : (
-                  <p className="text-center text-xs text-pink-400 dark:text-pink-300">No messages yet!</p>
-                )}
+                  </Link>
+                ))}
               </div>
             </motion.div>
-
-            <div className="flex justify-center mt-4">
-              <Link href="/messages">
-                <motion.button
-                  className="button px-6 py-2 text-pink-600 dark:text-pink-300 font-medium flex items-center space-x-2"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                >
-                  <span>Send Message</span>
-                  <span className="text-lg">✉</span>
-                </motion.button>
-              </Link>
-            </div>
           </motion.div>
         </div>
 
@@ -283,84 +276,6 @@ export default function Home() {
           </motion.a>
         </motion.div>
 
-        {/* Site Directory - Moved from profile page */}
-        <motion.div
-          className="mt-8"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.8 }}
-        >
-          <motion.h2
-            className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4 text-center"
-            initial={{ y: -10 }}
-            animate={{ y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            Site Directory <span className="text-pink-400">♡</span>
-          </motion.h2>
-
-          <motion.div
-            className="divider mb-6"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.9 }}
-          />
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {[
-              {
-                path: "/profile",
-                label: "Profile",
-                icon: <User className="w-4 h-4" />,
-                description: "View my profile",
-              },
-              {
-                path: "/dni",
-                label: "DNI",
-                icon: <X className="w-4 h-4" />,
-                description: "Do Not Interact guidelines",
-              },
-              {
-                path: "/byf",
-                label: "BYF",
-                icon: <Heart className="w-4 h-4" />,
-                description: "Before You Follow information",
-              },
-              { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" />, description: "My favorite things" },
-              {
-                path: "/messages",
-                label: "Messages",
-                icon: <MessageSquare className="w-4 h-4" />,
-                description: "Send and view messages",
-              },
-              {
-                path: "/gacha",
-                label: "Daily Gacha",
-                icon: <Gift className="w-4 h-4" />,
-                description: "Get your daily word of affirmation",
-              },
-            ].map((link, index) => (
-              <Link href={link.path} key={link.path}>
-                <motion.div
-                  className="bg-pink-50 dark:bg-[#2d2d42] p-3 rounded-xl flex items-center gap-3 hover:bg-pink-100 dark:hover:bg-[#3d3d5a] transition-colors"
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 1.0 + index * 0.1 }}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                >
-                  <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
-                    <span className="text-pink-600 dark:text-pink-300">{link.icon}</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-pink-700 dark:text-pink-300">{link.label}</p>
-                    <p className="text-xs text-pink-500 dark:text-pink-400">{link.description}</p>
-                  </div>
-                </motion.div>
-              </Link>
-            ))}
-          </div>
-        </motion.div>
         <PageNavigation />
       </motion.div>
     </div>
