@@ -68,8 +68,10 @@ export function TaskBar() {
     isMuted,
     toggleMute,
     error,
-    reorderSongs, // Use the reorderSongs function from the hook
-    resetPlaylist, // Use the resetPlaylist function from the hook
+    reorderSongs,
+    resetPlaylist,
+    crossfadeDuration,
+    setCrossfadeDuration,
   } = useMusicPlayer()
 
   // Initialize queue items
@@ -359,6 +361,10 @@ export function TaskBar() {
                           >
                             <SkipForward className="w-3 h-3" />
                           </motion.button>
+                        </div>
+
+                        <div className="text-[10px] text-center mt-1 mb-3 text-pink-500 dark:text-pink-400">
+                          <span>Gapless • Crossfade {crossfadeDuration}s</span>
                         </div>
 
                         <div className="flex justify-between items-center">
