@@ -45,9 +45,9 @@ type MusicPlayerContextType = {
 const originalSongs: Song[] = [
   {
     id: "song-1",
-    title: "七時の食事 (Chocolate Lemon)",
+    title: "ユメの喫茶店 (Yume no Kissaten)",
     artist: "Mitsukiyo",
-    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track1-R0VtvF2UZHaycrG1srAGW6vRP8OwXs.mp3",
+    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track24-siq4T3PkO7phbwkjhpw2PL1JJPhSUK.mp3",
   },
   {
     id: "song-2",
@@ -180,6 +180,12 @@ const originalSongs: Song[] = [
     title: "Birds",
     artist: "Tsundere Twintails",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track23-WlqDGFp7EC58V7HXzR6y3TzP4iwwSa.mp3",
+  },
+  {
+    id: "song-24",
+    title: "七時の食事 (Chocolate Lemon)",
+    artist: "Mitsukiyo",
+    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track1-R0VtvF2UZHaycrG1srAGW6vRP8OwXs.mp3",
   },
 ]
 
