@@ -33,8 +33,8 @@ const pages = [
   { path: "/dni", label: "DNI", icon: <X className="w-4 h-4" /> },
   { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" /> },
   { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" /> },
-  { path: "/messages", label: "Messages", icon: <MessageSquare className="w-4 h-4" /> },
-  { path: "/gacha", label: "Gacha", icon: <Gift className="w-4 h-4" /> },
+  { path: "/messages", label: "MSG", icon: <MessageSquare className="w-4 h-4" /> },
+  { path: "/gacha", label: "WOTD", icon: <Gift className="w-4 h-4" /> },
 ]
 
 export function TaskBar() {

@@ -22,7 +22,7 @@ export default function GachaPage() {
           transition={{ delay: 0.4 }}
         >
           <p className="text-pink-600 dark:text-pink-300 text-sm">
-            Come back tomorrow for a new word of affirmation! ♡
+            Specially handpicked by Pien, with love! ♡
           </p>
         </motion.div>
 
