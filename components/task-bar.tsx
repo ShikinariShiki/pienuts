@@ -363,10 +363,6 @@ export function TaskBar() {
                           </motion.button>
                         </div>
 
-                        <div className="text-[10px] text-center mt-1 mb-3 text-pink-500 dark:text-pink-400">
-                          <span>Gapless • Crossfade {crossfadeDuration}s</span>
-                        </div>
-
                         <div className="flex justify-between items-center">
                           <div className="relative">
                             <motion.button
