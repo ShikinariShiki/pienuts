@@ -4,7 +4,8 @@ import { useState, useEffect, useRef } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
-import { RefreshCw } from "lucide-react"
+import { Input } from "@/components/ui/input"
+import { RefreshCw, Heart, Mail } from "lucide-react"
 
 // Words of affirmation
 const affirmations = [
@@ -45,21 +46,30 @@ const affirmations = [
 export function WordOfDayGacha() {
   const [currentWord, setCurrentWord] = useState("")
   const [showConfetti, setShowConfetti] = useState(false)
-  const confettiRef = useRef<HTMLDivElement>(null)
+  const [userName, setUserName] = useState("")
+  const [savedUserName, setSavedUserName] = useState("")
+  const [showNameInput, setShowNameInput] = useState(true)
+  const [showLetter, setShowLetter] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
+  const confettiRef = useRef<HTMLDivElement>(null)
 
-  // Generate a random word based on device ID
+  // Check if we have a saved name on component mount
+  useEffect(() => {
+    const savedName = localStorage.getItem("wotd-username")
+    if (savedName) {
+      setSavedUserName(savedName)
+      setUserName(savedName)
+      setShowNameInput(false)
+    }
+  }, [])
+
+  // Generate a random word
   const getRandomWord = () => {
-    // Get all available words
     const availableWords = [...affirmations]
-
-    // Shuffle array using Fisher-Yates algorithm
     for (let i = availableWords.length - 1; i > 0; i--) {
       const j = Math.floor(Math.random() * (i + 1))
       ;[availableWords[i], availableWords[j]] = [availableWords[j], availableWords[i]]
     }
-
-    // Return the first word from shuffled array
     return availableWords[0]
   }
 
@@ -83,10 +93,28 @@ export function WordOfDayGacha() {
     }
   }
 
-  // Initialize word on first load
-  useEffect(() => {
+  // Handle name submission
+  const handleSubmitName = () => {
+    if (userName.trim()) {
+      localStorage.setItem("wotd-username", userName.trim())
+      setSavedUserName(userName.trim())
+      setShowNameInput(false)
+      handleGetWOTD()
+    }
+  }
+
+  // Handle getting a new WOTD
+  const handleGetWOTD = () => {
     setCurrentWord(getRandomWord())
-  }, [])
+    setShowLetter(true)
+    setShowConfetti(true)
+    createConfetti()
+
+    // Hide confetti after animation
+    setTimeout(() => {
+      setShowConfetti(false)
+    }, 3000)
+  }
 
   // Handle reshuffling the word
   const handleReshuffle = () => {
@@ -111,6 +139,12 @@ export function WordOfDayGacha() {
     }, 300)
   }
 
+  // Handle changing the name
+  const handleChangeName = () => {
+    setShowNameInput(true)
+    setShowLetter(false)
+  }
+
   return (
     <div className="relative">
       {/* Confetti container */}
@@ -118,48 +152,130 @@ export function WordOfDayGacha() {
         <div ref={confettiRef} className="absolute inset-0 overflow-hidden pointer-events-none z-10"></div>
       )}
 
-      {/* Fixed card size with proper proportions */}
       <Card className="w-full max-w-md mx-auto">
         <CardContent className="p-6 text-center">
           <h1 className="text-3xl font-bold text-pink-600 dark:text-pink-300 mb-6">
             Word of the Day <span className="text-pink-400">♡</span>
           </h1>
 
-          <p className="text-pink-600 dark:text-pink-400 mb-6">Your unique daily affirmation, just for you!</p>
-
-          <motion.div
-            className="mb-8"
-            animate={isAnimating ? { scale: [1, 0.9, 1.1, 1] } : {}}
-            transition={{ duration: 0.5 }}
-          >
-            <div className="bg-pink-100 dark:bg-[#2d2d42] p-6 rounded-xl min-h-[180px] flex items-center justify-center">
-              <div className="text-center">
-                <span className="text-4xl mb-4 block">💌</span>
-                <motion.p
-                  key={currentWord}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  transition={{ duration: 0.5 }}
-                  className="text-lg text-pink-700 dark:text-pink-300"
-                >
-                  {currentWord}
-                </motion.p>
-              </div>
-            </div>
-          </motion.div>
-
-          <motion.div className="flex justify-center">
-            <Button
-              onClick={handleReshuffle}
-              disabled={isAnimating}
-              className="px-6 py-2 text-pink-600 dark:text-pink-300 font-medium flex items-center space-x-2"
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+          {showNameInput ? (
+            <motion.div
+              className="space-y-4"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
             >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              <span>{isAnimating ? "Reshuffling..." : "Reshuffle"}</span>
-            </Button>
-          </motion.div>
+              <p className="text-pink-600 dark:text-pink-400 mb-2">
+                Please enter your name to receive your daily affirmation:
+              </p>
+
+              <div className="flex flex-col space-y-4">
+                <Input
+                  type="text"
+                  placeholder="Your name"
+                  value={userName}
+                  onChange={(e) => setUserName(e.target.value)}
+                  className="border-pink-300 dark:border-pink-700 focus:ring-pink-500"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") handleSubmitName()
+                  }}
+                />
+
+                <Button
+                  onClick={handleSubmitName}
+                  disabled={!userName.trim()}
+                  className="bg-pink-500 hover:bg-pink-600 text-white"
+                >
+                  <Mail className="w-4 h-4 mr-2" />
+                  Get Your Daily Message!
+                </Button>
+              </div>
+            </motion.div>
+          ) : (
+            <>
+              {showLetter ? (
+                <motion.div
+                  className="mb-8"
+                  initial={{ opacity: 0, scale: 0.9 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <div className="bg-pink-50 dark:bg-[#2d2d42] p-6 rounded-xl min-h-[250px] flex flex-col items-center justify-center relative">
+                    {/* Decorative elements */}
+                    <div className="absolute top-2 left-2 text-pink-300 dark:text-pink-500 opacity-50">
+                      <Heart size={16} />
+                    </div>
+                    <div className="absolute top-2 right-2 text-pink-300 dark:text-pink-500 opacity-50">
+                      <Heart size={16} />
+                    </div>
+
+                    {/* Letter content */}
+                    <div className="text-center w-full">
+                      <div className="mb-6 text-left">
+                        <p className="text-pink-700 dark:text-pink-300 font-medium">Dear {savedUserName},</p>
+                      </div>
+
+                      <motion.p
+                        key={currentWord}
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ duration: 0.5, delay: 0.2 }}
+                        className="text-lg text-pink-700 dark:text-pink-300 mb-6 italic"
+                      >
+                        "{currentWord}"
+                      </motion.p>
+
+                      <div className="mt-6 text-right">
+                        <p className="text-pink-700 dark:text-pink-300 font-medium">Have a wonderful day!</p>
+                        <p className="text-pink-700 dark:text-pink-300 font-medium">With love, Pien ♡</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-between mt-4">
+                    <Button
+                      onClick={handleChangeName}
+                      variant="outline"
+                      className="text-pink-600 dark:text-pink-300 border-pink-300 dark:border-pink-700"
+                    >
+                      Change Name
+                    </Button>
+
+                    <Button
+                      onClick={handleReshuffle}
+                      disabled={isAnimating}
+                      className="bg-pink-500 hover:bg-pink-600 text-white"
+                    >
+                      <RefreshCw className="w-4 h-4 mr-2" />
+                      <span>{isAnimating ? "Reshuffling..." : "New Message"}</span>
+                    </Button>
+                  </div>
+                </motion.div>
+              ) : (
+                <motion.div
+                  className="space-y-4"
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5 }}
+                >
+                  <p className="text-pink-600 dark:text-pink-400 mb-4">
+                    Welcome back, {savedUserName}! Click below to receive your daily affirmation.
+                  </p>
+
+                  <Button onClick={handleGetWOTD} className="bg-pink-500 hover:bg-pink-600 text-white">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Get Your Daily Message!
+                  </Button>
+
+                  <div className="mt-2">
+                    <button onClick={handleChangeName} className="text-sm text-pink-500 hover:text-pink-600 underline">
+                      Not {savedUserName}? Change name
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </>
+          )}
         </CardContent>
       </Card>
     </div>

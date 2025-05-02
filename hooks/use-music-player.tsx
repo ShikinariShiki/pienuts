@@ -1,6 +1,7 @@
 "use client"
 
 import type React from "react"
+
 import { useState, useEffect, createContext, useContext, useRef } from "react"
 
 type Song = {
@@ -28,21 +29,21 @@ type MusicPlayerContextType = {
   nextSong: () => void
   prevSong: () => void
   songs: Song[]
-  setSongs: (songs: Song[]) => void
+  setSongs: (songs: Song[]) => void // Add this function to the type
   audioRef: React.RefObject<HTMLAudioElement>
   showQueue: boolean
   toggleQueue: () => void
   isMuted: boolean
   toggleMute: () => void
   error: string | null
-  reorderSongs: (fromIndex: number, toIndex: number) => void
-  originalSongs: Song[]
-  resetPlaylist: () => void
+  reorderSongs: (fromIndex: number, toIndex: number) => void // New function for reordering
+  originalSongs: Song[] // Keep track of original song order
+  resetPlaylist: () => void // Reset playlist to original order
   crossfadeDuration: number
   setCrossfadeDuration: (duration: number) => void
 }
 
-// Original songs array remains unchanged...
+// Add unique IDs to songs for drag-and-drop functionality
 const originalSongs: Song[] = [
   {
     id: "song-1",
@@ -205,19 +206,14 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [showQueue, setShowQueue] = useState(false)
   const [isMuted, setIsMuted] = useState(false)
   const [error, setError] = useState<string | null>(null)
-
-  // State for crossfade
   const [isFading, setIsFading] = useState(false)
   const [isFirstLoad, setIsFirstLoad] = useState(true)
+  const [nextAudioRef, setNextAudioRef] = useState<HTMLAudioElement | null>(null)
   const [crossfadeDuration, setCrossfadeDuration] = useState(3) // Default 3 seconds
 
-  // Refs
+  // Use a ref to store the audio element
   const audioRef = useRef<HTMLAudioElement | null>(null)
-  const nextAudioRef = useRef<HTMLAudioElement | null>(null)
   const fadeIntervalRef = useRef<NodeJS.Timeout | null>(null)
-  const preloadTimeoutRef = useRef<NodeJS.Timeout | null>(null)
-  const nextSongPreloadedRef = useRef<boolean>(false)
-  const lastPlayedTimeRef = useRef<number>(0)
 
   // Function to reorder songs (for drag-and-drop)
   const reorderSongs = (fromIndex: number, toIndex: number) => {
@@ -225,6 +221,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     const [movedSong] = updatedSongs.splice(fromIndex, 1)
     updatedSongs.splice(toIndex, 0, movedSong)
 
+    // If the current song was moved, update the current song index
     let newCurrentIndex = currentSongIndex
     if (currentSongIndex === fromIndex) {
       newCurrentIndex = toIndex
@@ -232,8 +229,11 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       (fromIndex < currentSongIndex && toIndex >= currentSongIndex) ||
       (fromIndex > currentSongIndex && toIndex <= currentSongIndex)
     ) {
+      // Adjust current song index if the moved song crossed over it
       newCurrentIndex = fromIndex < currentSongIndex ? currentSongIndex - 1 : currentSongIndex + 1
     }
+
+    // Update songs first, then update current index to maintain playback
     setSongs(updatedSongs)
     setCurrentSongIndex(newCurrentIndex)
   }
@@ -242,6 +242,8 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const resetPlaylist = () => {
     const currentSong = songs[currentSongIndex]
     setSongs([...originalSongs])
+
+    // Find the index of the current song in the original playlist
     const newIndex = originalSongs.findIndex((song) => song.id === currentSong.id)
     if (newIndex !== -1) {
       setCurrentSongIndex(newIndex)
@@ -250,190 +252,127 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     }
   }
 
-  // Fade in function
+  // Fade in function - SHORTENED DURATION
   const fadeIn = () => {
     if (!audioRef.current) return
+
     setIsFading(true)
     let vol = 0
     audioRef.current.volume = vol
+
     fadeIntervalRef.current = setInterval(() => {
       if (!audioRef.current) return
-      vol += 0.1
+
+      vol += 0.1 // Increased step size for faster fade
       if (vol >= volume) {
         vol = volume
         clearInterval(fadeIntervalRef.current!)
         setIsFading(false)
       }
+
       audioRef.current.volume = isMuted ? 0 : vol
-    }, 50)
+    }, 50) // Reduced interval for faster fade
   }
 
-  // Fade out function
+  // Fade out function - SHORTENED DURATION
   const fadeOut = () => {
     if (!audioRef.current) return
+
     setIsFading(true)
     let vol = audioRef.current.volume
+
     fadeIntervalRef.current = setInterval(() => {
       if (!audioRef.current) return
-      vol -= 0.1
+
+      vol -= 0.1 // Increased step size for faster fade
       if (vol <= 0) {
         vol = 0
         clearInterval(fadeIntervalRef.current!)
         setIsFading(false)
+
+        // After fade out completes, we can pause or change track
         return true
       }
+
       audioRef.current.volume = vol
       return false
-    }, 50)
-    return false
+    }, 50) // Reduced interval for faster fade
+
+    return false // Not done fading yet
   }
 
-  // Preload next song to fix gapless bug
-  const preloadNextSong = () => {
-    if (!audioRef.current) return
-
-    // Clear any existing preload timeout
-    if (preloadTimeoutRef.current) {
-      clearTimeout(preloadTimeoutRef.current)
-    }
-
-    // Calculate next song index
-    const nextIndex = isShuffling ? Math.floor(Math.random() * songs.length) : (currentSongIndex + 1) % songs.length
-
-    // Create a new audio element for preloading
-    if (!nextAudioRef.current) {
-      nextAudioRef.current = new Audio()
-    }
-
-    // Set the source and start loading
-    nextAudioRef.current.src = songs[nextIndex].src
-    nextAudioRef.current.load()
-
-    // Set a flag that we've preloaded the next song
-    nextSongPreloadedRef.current = true
-  }
-
-  // Improved crossFade function to fix the looping bug
+  // Cross fade between tracks - IMPROVED AND SHORTENED
   const crossFade = (nextIndex: number) => {
     if (!audioRef.current) return
 
-    // If we have a preloaded next audio, use it
-    let nextAudio: HTMLAudioElement
+    // Create a new audio element for the next track
+    const nextAudio = new Audio()
+    nextAudio.src = songs[nextIndex].src
+    nextAudio.volume = 0 // Start with volume 0
+    nextAudio.loop = isLooping
 
-    if (nextSongPreloadedRef.current && nextAudioRef.current) {
-      nextAudio = nextAudioRef.current
-      // Reset the preload flag
-      nextSongPreloadedRef.current = false
-    } else {
-      // Create a new audio element if we don't have one preloaded
-      nextAudio = new Audio()
-      nextAudio.src = songs[nextIndex].src
-      nextAudio.load()
+    // Load the next track (without playing yet)
+    nextAudio.load()
+
+    // Clear any existing fade interval
+    if (fadeIntervalRef.current) {
+      clearInterval(fadeIntervalRef.current)
     }
 
-    // Set initial volume to 0
-    nextAudio.volume = 0
+    const currentAudio = audioRef.current
+    const startVolume = isMuted ? 0 : volume
+    const fadeDuration = 1000 // 1 second crossfade
+    const fadeStep = 20 // ms between volume changes
+    let elapsed = 0
 
-    // Start playing the next song immediately
-    // This fixes the looping bug by ensuring we don't wait to start playing
-    const playPromise = nextAudio.play().catch((err) => {
-      console.error("Failed to play next track:", err)
-      // If we can't play the next track, just switch to it directly
-      if (audioRef.current) {
-        audioRef.current.src = songs[nextIndex].src
-        audioRef.current.load()
-        audioRef.current.play().catch(console.error)
+    setIsFading(true)
+
+    // Start playing the next song only after user interaction
+    const playNextTrack = () => {
+      nextAudio.play().catch((err) => {
+        console.error("Failed to play during crossfade:", err)
+        // If we can't play the next track, just switch to it directly
+        setCurrentSongIndex(nextIndex)
+        return
+      })
+    }
+
+    // Try to play the next track (this will work if user has interacted)
+    playNextTrack()
+
+    fadeIntervalRef.current = setInterval(() => {
+      elapsed += fadeStep
+      const progress = Math.min(elapsed / fadeDuration, 1)
+
+      // Fade out current track
+      if (currentAudio) {
+        currentAudio.volume = Math.max(0, startVolume * (1 - progress))
       }
-    })
 
-    // If play was successful, start the crossfade
-    if (playPromise !== undefined) {
-      // Clear any existing fade interval
-      if (fadeIntervalRef.current) {
-        clearInterval(fadeIntervalRef.current)
-      }
+      // Fade in next track
+      nextAudio.volume = isMuted ? 0 : Math.min(volume, volume * progress)
 
-      const currentAudio = audioRef.current
-      const startVolume = currentAudio.volume
-      const fadeDuration = crossfadeDuration * 1000
-      const fadeStep = 50 // ms between volume changes
-      let elapsed = 0
+      // When fade is complete
+      if (progress >= 1) {
+        clearInterval(fadeIntervalRef.current!)
 
-      setIsFading(true)
-
-      fadeIntervalRef.current = setInterval(() => {
-        elapsed += fadeStep
-        const progress = Math.min(elapsed / fadeDuration, 1)
-
-        // Fade out current track
+        // Stop the current audio
         if (currentAudio) {
-          currentAudio.volume = Math.max(0, startVolume * (1 - progress))
+          currentAudio.pause()
+          currentAudio.currentTime = 0
         }
 
-        // Fade in next track
-        nextAudio.volume = Math.min(volume, volume * progress)
-
-        // When fade is complete
-        if (progress >= 1) {
-          clearInterval(fadeIntervalRef.current!)
-
-          // Stop the current audio
-          if (currentAudio) {
-            currentAudio.pause()
-            currentAudio.currentTime = 0
-          }
-
-          // Set the next audio as current
-          audioRef.current = nextAudio
-          setCurrentSongIndex(nextIndex)
-          setIsFading(false)
-
-          // Start preloading the next song
-          preloadNextSong()
-        }
-      }, fadeStep)
-    }
+        // Set the next audio as current
+        audioRef.current = nextAudio
+        setCurrentSongIndex(nextIndex)
+        setIsFading(false)
+      }
+    }, fadeStep)
   }
 
-  // Handle timeupdate event
-  const handleTimeUpdate = () => {
-    if (!audioRef.current) return
-
-    const audio = audioRef.current
-    setCurrentTime(audio.currentTime)
-
-    if (audio.duration) {
-      setProgress((audio.currentTime / audio.duration) * 100)
-
-      // Preload next song when we're close to the end
-      if (audio.duration - audio.currentTime <= 10 && !nextSongPreloadedRef.current) {
-        preloadNextSong()
-      }
-
-      // Start crossfade when we're close to the end
-      if (!isFading && audio.duration - audio.currentTime <= crossfadeDuration) {
-        const nextIndex = isShuffling
-          ? (() => {
-              let idx
-              do {
-                idx = Math.floor(Math.random() * songs.length)
-              } while (idx === currentSongIndex && songs.length > 1)
-              return idx
-            })()
-          : (currentSongIndex + 1) % songs.length
-
-        crossFade(nextIndex)
-      }
-    }
-
-    // Store the last played time to detect if we're stuck in a loop
-    lastPlayedTimeRef.current = audio.currentTime
-  }
-
-  // Handle song ended event
-  const handleEnded = () => {
-    if (isLooping) return // Let the native loop handle it
-
+  // Define nextSong and prevSong functions BEFORE they're used in useEffect
+  const nextSong = () => {
+    // Determine the next song index based on shuffle state
     const nextIndex = isShuffling
       ? (() => {
           let idx
@@ -444,98 +383,138 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         })()
       : (currentSongIndex + 1) % songs.length
 
-    // If we're not already crossfading, start now
-    if (!isFading) {
-      crossFade(nextIndex)
+    // Set the new index and let the effect handle the change
+    setCurrentSongIndex(nextIndex)
+
+    // Ensure we're playing
+    setIsPlaying(true)
+
+    // If audio exists, play it immediately
+    if (audioRef.current) {
+      audioRef.current.src = songs[nextIndex].src
+      audioRef.current.load()
+      audioRef.current.play().catch((err) => {
+        console.error("Failed to play next track:", err)
+        setIsPlaying(false)
+      })
     }
   }
 
-  // Initialize audio element
+  const prevSong = () => {
+    if (isShuffling) {
+      // Play a random song excluding the current one
+      let nextIndex
+      do {
+        nextIndex = Math.floor(Math.random() * songs.length)
+      } while (nextIndex === currentSongIndex && songs.length > 1)
+      setCurrentSongIndex(nextIndex)
+    } else {
+      // Go to previous song
+      setCurrentSongIndex((prev) => (prev === 0 ? songs.length - 1 : prev - 1))
+    }
+  }
+
+  // Initialize audio element only once on client side
   useEffect(() => {
     if (typeof window === "undefined") return
 
+    // Create audio element if it doesn't exist
     if (!audioRef.current) {
       const audio = new Audio()
       audioRef.current = audio
 
+      // Set initial source
       audio.src = songs[currentSongIndex].src
       audio.load()
       audio.volume = 0 // Start with volume 0 for fade in
 
-      // Check if this is the first visit
+      console.log("Audio element created")
+
+      // Check if this is the first visit using sessionStorage
       const hasVisited = sessionStorage.getItem("hasVisitedBefore") === "true"
 
       if (!hasVisited) {
         // First visit, autoplay with fade in
-        audio
-          .play()
-          .then(() => {
-            setIsPlaying(true)
-            fadeIn()
-          })
-          .catch((err) => {
-            console.error("Autoplay prevented:", err)
-          })
+        const playPromise = audio.play().catch((err) => {
+          console.error("Autoplay prevented:", err)
+          // Many browsers prevent autoplay, so we'll handle this gracefully
+        })
+
+        if (playPromise !== undefined) {
+          playPromise
+            .then(() => {
+              setIsPlaying(true)
+              // Fade in
+              fadeIn()
+            })
+            .catch((err) => {
+              console.error("Autoplay error:", err)
+            })
+        }
 
         // Mark that user has visited
         sessionStorage.setItem("hasVisitedBefore", "true")
       }
-
-      // Start preloading the next song
-      preloadNextSong()
     }
 
     return () => {
-      // Cleanup
+      // Cleanup on unmount
       if (audioRef.current) {
         audioRef.current.pause()
         audioRef.current.src = ""
       }
 
-      if (nextAudioRef.current) {
-        nextAudioRef.current.pause()
-        nextAudioRef.current.src = ""
+      if (nextAudioRef) {
+        nextAudioRef.pause()
+        nextAudioRef.src = ""
       }
 
+      // Clear any fade intervals
       if (fadeIntervalRef.current) {
         clearInterval(fadeIntervalRef.current)
-      }
-
-      if (preloadTimeoutRef.current) {
-        clearTimeout(preloadTimeoutRef.current)
       }
     }
   }, [])
 
-  // Handle song changes
+  // Handle song changes and loading
   useEffect(() => {
     if (!audioRef.current) return
 
     const audio = audioRef.current
 
+    // Reset error state
+    setError(null)
+
     try {
+      // Set the source
       const songSrc = songs[currentSongIndex].src
+      console.log(`Loading song: ${songSrc}`)
 
+      // Check if the source has changed before setting it
       if (audio.src !== songSrc) {
-        setError(null)
-
-        // If we're not fading, set the source directly
-        if (!isFading) {
+        if (isPlaying && !isFirstLoad) {
+          // If already playing and not first load, use crossfade
+          crossFade(currentSongIndex)
+        } else {
+          // Otherwise just load the new track
           audio.src = songSrc
           audio.load()
+
+          // Set audio properties
           audio.volume = isMuted ? 0 : volume
           audio.loop = isLooping
 
+          // If it should be playing, play it
           if (isPlaying) {
-            audio.play().catch((err) => {
-              console.error("Play failed:", err)
-              setError(`Failed to play: ${err.message}`)
-              setIsPlaying(false)
-            })
+            const playPromise = audio.play()
+            if (playPromise !== undefined) {
+              playPromise.catch((error) => {
+                console.error("Play failed:", error)
+                setError(`Failed to play: ${error.message}`)
+                setIsPlaying(false)
+              })
+            }
           }
-
-          // Preload the next song
-          preloadNextSong()
         }
       } else {
         // Same source, just update properties
@@ -543,13 +522,14 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         audio.loop = isLooping
       }
 
+      // No longer first load
       setIsFirstLoad(false)
     } catch (err) {
       console.error("Error setting up audio:", err)
       setError(`Error setting up audio: ${err instanceof Error ? err.message : String(err)}`)
       setIsPlaying(false)
     }
-  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping])
+  }, [currentSongIndex, isPlaying, volume, isMuted, isLooping, isFirstLoad, songs])
 
   // Set up event listeners
   useEffect(() => {
@@ -557,34 +537,79 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
 
     const audio = audioRef.current
 
-    audio.addEventListener("timeupdate", handleTimeUpdate)
-    audio.addEventListener("loadedmetadata", () => setDuration(audio.duration))
-    audio.addEventListener("ended", handleEnded)
-    audio.addEventListener("error", (e) => {
+    const handleTimeUpdate = () => {
+      setCurrentTime(audio.currentTime)
+      if (audio.duration) {
+        setProgress((audio.currentTime / audio.duration) * 100)
+      }
+    }
+
+    const handleLoadedMetadata = () => {
+      console.log("Audio metadata loaded, duration:", audio.duration)
+      setDuration(audio.duration)
+    }
+
+    // FIX: Properly handle looping when song ends
+    const handleEnded = () => {
+      console.log("Song ended, isLooping:", isLooping)
+
+      // If looping is enabled, just restart the current song
+      if (isLooping) {
+        console.log("Looping current song")
+        if (audioRef.current) {
+          audioRef.current.currentTime = 0
+          const playPromise = audioRef.current.play()
+          if (playPromise !== undefined) {
+            playPromise.catch((err) => {
+              console.error("Failed to loop track:", err)
+              setIsPlaying(false)
+            })
+          }
+        }
+        return
+      }
+
+      // If not looping, play the next song
+      console.log("Playing next song")
+      nextSong()
+    }
+
+    const handleError = (e: Event) => {
       console.error("Audio error:", e)
       setError(`Audio error: ${audio.error?.message || "Unknown error"}`)
       setIsPlaying(false)
+
+      // Try to recover by playing next song
       nextSong()
-    })
-    audio.addEventListener("canplay", () => {
+    }
+
+    const handleCanPlay = () => {
+      console.log("Audio can play now")
       if (isPlaying) {
         audio.play().catch((err) => {
           console.error("Play failed in canplay handler:", err)
           setIsPlaying(false)
         })
       }
-    })
+    }
+
+    // Add event listeners
+    audio.addEventListener("timeupdate", handleTimeUpdate)
+    audio.addEventListener("loadedmetadata", handleLoadedMetadata)
+    audio.addEventListener("ended", handleEnded)
+    audio.addEventListener("error", handleError)
+    audio.addEventListener("canplay", handleCanPlay)
 
     return () => {
+      // Remove event listeners on cleanup
       audio.removeEventListener("timeupdate", handleTimeUpdate)
-      audio.removeEventListener("loadedmetadata", () => {})
+      audio.removeEventListener("loadedmetadata", handleLoadedMetadata)
       audio.removeEventListener("ended", handleEnded)
-      audio.removeEventListener("error", () => {})
-      audio.removeEventListener("canplay", () => {})
+      audio.removeEventListener("error", handleError)
+      audio.removeEventListener("canplay", handleCanPlay)
     }
-  }, [])
+  }, [currentSongIndex, isLooping, isPlaying, isShuffling, songs.length])
 
-  // Define player control functions
   const togglePlay = () => {
     if (!audioRef.current) return
 
@@ -592,25 +617,31 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
       const newIsPlaying = !prev
 
       if (newIsPlaying) {
+        // Try to play with fade in
         if (audioRef.current.volume === 0 || isFading) {
           fadeIn()
         }
 
-        audioRef.current.play().catch((error) => {
-          console.error("Toggle play failed:", error)
-          setError(`Failed to play: ${error.message}`)
-          return false
-        })
+        const playPromise = audioRef.current.play()
+        if (playPromise !== undefined) {
+          playPromise.catch((error) => {
+            console.error("Toggle play failed:", error)
+            setError(`Failed to play: ${error.message}`)
+            return false // Keep isPlaying as false if play fails
+          })
+        }
       } else {
+        // Pause with fade out
         const fadeOutComplete = fadeOut()
         if (fadeOutComplete) {
           audioRef.current.pause()
         } else {
+          // If fade is not complete, set up a timeout to pause after fade
           setTimeout(() => {
             if (audioRef.current) {
               audioRef.current.pause()
             }
-          }, 500)
+          }, 500) // Shortened from 1500ms
         }
       }
 
@@ -624,39 +655,12 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
     }
   }
 
-  const nextSong = () => {
-    if (isShuffling) {
-      let nextIndex
-      do {
-        nextIndex = Math.floor(Math.random() * songs.length)
-      } while (nextIndex === currentSongIndex && songs.length > 1)
-
-      crossFade(nextIndex)
-    } else {
-      const nextIndex = (currentSongIndex + 1) % songs.length
-      crossFade(nextIndex)
-    }
-  }
-
-  const prevSong = () => {
-    if (isShuffling) {
-      let nextIndex
-      do {
-        nextIndex = Math.floor(Math.random() * songs.length)
-      } while (nextIndex === currentSongIndex && songs.length > 1)
-
-      crossFade(nextIndex)
-    } else {
-      const nextIndex = (currentSongIndex - 1 + songs.length) % songs.length
-      crossFade(nextIndex)
-    }
-  }
-
   const toggleLoop = () => {
     setIsLooping((prev) => {
       const newIsLooping = !prev
       if (audioRef.current) {
         audioRef.current.loop = newIsLooping
+        console.log("Loop set to:", newIsLooping)
       }
       return newIsLooping
     })
@@ -721,7 +725,9 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
 
 export function useMusicPlayer() {
   const context = useContext(MusicPlayerContext)
+
   if (context === undefined) {
+    // Return a default implementation if used outside provider
     return {
       isPlaying: false,
       togglePlay: () => {},
@@ -754,5 +760,6 @@ export function useMusicPlayer() {
       setCrossfadeDuration: () => {},
     }
   }
+
   return context
 }

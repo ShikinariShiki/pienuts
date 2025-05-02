@@ -102,7 +102,7 @@ export default function Home() {
               onClick={handleHeartClick}
             >
               <Image
-                src="/images/profile.jpeg"
+                src="https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/profile-TmrUwvKldkxdCEKtQEwJ4Pon7lplZ8.jpeg"
                 alt="Profile"
                 fill
                 className="object-cover hover:scale-105 transition-transform duration-700"
