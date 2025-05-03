@@ -191,7 +191,7 @@ export default function Home() {
                     },
                     {
                       path: "/gacha",
-                      label: "Daily Word",
+                      label: "Word of The Day",
                       icon: <Gift className="w-4 h-4" />,
                       description: "Get your word of affirmation",
                       bgColor: "bg-gradient-to-r from-pink-300 to-pink-400",

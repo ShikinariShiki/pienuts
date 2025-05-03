@@ -38,7 +38,7 @@ export function MobileMenu() {
     { path: "/byf", label: "BYF", icon: <Heart className="w-5 h-5" /> },
     { path: "/favs", label: "FAVS", icon: <Star className="w-5 h-5" /> },
     { path: "/messages", label: "Messages", icon: <MessageSquare className="w-5 h-5" /> },
-    { path: "/gacha", label: "Daily Gacha", icon: <Gift className="w-5 h-5" /> },
+    { path: "/gacha", label: "Word of The Day", icon: <Gift className="w-5 h-5" /> },
   ]
 
   return (
