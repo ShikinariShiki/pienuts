@@ -141,7 +141,7 @@ export function FavoritesListDropdown({ isOpen, onClose }: { isOpen: boolean; on
             <div className="flex items-center justify-between mb-2">
               <div className="flex-1">
                 <p className="text-sm font-medium text-pink-700 dark:text-pink-300">Kesayangan Pien🎀</p>
-                <p className="text-xs text-pink-500 dark:text-pink-400">Can't found your name? Tandanya kamu harus lebih sering interact sama pienn yaa!🌟 </p>
+                <p className="text-xs text-pink-500 dark:text-pink-400">Can't find your name? Tandanya kamu harus lebih sering interact sama pienn yaa!🌟 </p>
               </div>
 
               <motion.button
