@@ -2,12 +2,30 @@
 
 import { useState, useEffect } from "react"
 import { motion } from "framer-motion"
-import { fetchDniData } from "@/lib/api"
+import { fetchDniData } from "@/lib/api" // Assuming this is still needed, though not used in the provided snippet for DNI content itself
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { PageNavigation } from "@/components/page-navigation"
 
+// List of DNI criteria
+const dniItems = [
+  "Basic DNI",
+  "02 Voter/Supporter",
+  "Problematic",
+  "Zionist",
+  "Hate my favs",
+  "Homophobic",
+  "Racist",
+  "Heavy ladstwt",
+  "Can't separate between fiction & reality",
+  "Under 13 y.o", 
+  "Can't respect others"
+];
+
 export default function DniPage() {
-  const [dniData, setDniData] = useState<any>(null)
+  // Note: The fetchDniData logic seems unrelated to the hardcoded DNI list.
+  // If fetchDniData *should* provide the DNI list, you'll need to integrate that data.
+  // For now, I'm keeping the fetch logic as it was but using the hardcoded list you provided.
+  const [dniData, setDniData] = useState<any>(null) // This state seems unused for the DNI list itself now
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -15,11 +33,14 @@ export default function DniPage() {
     const loadData = async () => {
       try {
         setLoading(true)
-        const data = await fetchDniData()
-        setDniData(data)
+        // Simulating a data fetch or setup delay, remove if fetchDniData is actually used for something else critical
+        // If fetchDniData IS meant to load the DNI list, replace the hardcoded 'dniItems' array processing
+        await new Promise(resolve => setTimeout(resolve, 500)); // Example delay
+        // const data = await fetchDniData(); // Uncomment if you fetch data relevant elsewhere
+        // setDniData(data); // Uncomment if you set fetched data
         setError(null)
       } catch (err) {
-        setError("Failed to load DNI data. Please try again!")
+        setError("Failed to load page data. Please try again!") // Adjusted error message slightly
         console.error(err)
       } finally {
         setLoading(false)
@@ -45,6 +66,9 @@ export default function DniPage() {
       </div>
     )
   }
+
+  // Calculate delay for the "Important Note" based on the number of DNI items
+  const noteDelay = 0.5 + dniItems.length * 0.1 + 0.1; // Start after list items finish animating
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
@@ -84,22 +108,18 @@ export default function DniPage() {
             Please do not interact with me if you fall into any of these categories:
           </p>
 
+          {/* Updated list using map */}
           <ul className="list-disc pl-6 space-y-2 text-pink-600 dark:text-pink-400">
-            <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-              Problematic
-            </motion.li>
-            <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
-              02 voter
-            </motion.li>
-            <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }}>
-              Homophobic
-            </motion.li>
-            <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8 }}>
-              Kalah 50/50 10
-            </motion.li>
-            <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }}>
-              Lorem ipsum dolor vincit amet tribie lucu bukan main
-            </motion.li>
+            {dniItems.map((item, index) => (
+              <motion.li
+                key={item} // Using item text as key (ensure uniqueness)
+                initial={{ opacity: 0, x: -20 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: 0.5 + index * 0.1 }} // Staggered delay calculation
+              >
+                {item}
+              </motion.li>
+            ))}
           </ul>
         </motion.div>
 
@@ -107,7 +127,7 @@ export default function DniPage() {
           className="bg-pink-50 dark:bg-[#2d2d42] p-6 rounded-xl"
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 1.0 }}
+          transition={{ delay: noteDelay }} // Adjusted delay to start after the list animation
         >
           <h2 className="text-xl font-bold text-pink-700 dark:text-pink-300 mb-4">
             Important Note<span className="text-pink-400 dark:text-pink-200">!</span>

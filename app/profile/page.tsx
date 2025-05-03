@@ -91,7 +91,7 @@ export default function ProfilePage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              {["🎨 Artist", "🎮 Gamer", "🌸 Otaku", "🎵 Music Lover", "🍰 Foodie"].map((tag, index) => (
+              {["🌸 INFJ", "💝 Word of Affirmation", "🫂 Physical Touch", "⌛ Quality Time", "☕ Coffee Lover"].map((tag, index) => (
                 <motion.span
                   key={index}
                   className="bg-pink-100 dark:bg-[#2d2d42] px-3 py-1 rounded-full text-sm text-pink-700 dark:text-pink-300 cursor-pointer"
@@ -121,7 +121,7 @@ export default function ProfilePage() {
               animate={{ opacity: 1 }}
               transition={{ delay: 0.3 }}
             >
-              19 / nationality, languages, etc
+              hii!! I'm PIENN!! she/her, legal (18+) よろしく~! 🌸
             </motion.p>
 
             <motion.div
@@ -142,8 +142,7 @@ export default function ProfilePage() {
                 <span className="text-pink-400 dark:text-pink-200">!</span> Things I like
               </p>
               <p className="text-sm text-pink-600 dark:text-pink-400 mt-2">
-                I love playing HSR, drawing cute characters, listening to music, and eating sweets! My favorite color is
-                pastel pink and I adore kawaii aesthetics.
+                I love learning foreign languages (currently on 🇯🇵 & 🇨🇳), coding and building cute websites 👩‍💻, listening to music, and drinking coffee! My favorite color is pastel colors and I adore nature aesthetics.
               </p>
             </motion.div>
 
@@ -158,8 +157,7 @@ export default function ProfilePage() {
                 <span className="text-pink-400 dark:text-pink-200">!</span> Things I dislike
               </p>
               <p className="text-sm text-pink-600 dark:text-pink-400 mt-2">
-                I don't like spicy food, horror movies, rainy days when I have to go out, and when my internet is slow
-                while gaming.
+                I don't like horror movies 👻, overly sweet foods 🍫, rainy days when I have to go out ⛈️, and when my internet is slow while gaming/streaming movies 🐌.
               </p>
             </motion.div>
 
@@ -174,95 +172,7 @@ export default function ProfilePage() {
                 <span className="text-pink-400 dark:text-pink-200">!</span> More about me
               </p>
               <p className="text-sm text-pink-600 dark:text-pink-400 mt-2">
-                I'm a digital artist who loves to create cute illustrations. My dream is to publish my own manga one
-                day! I also enjoy collecting stationery and plushies.
-              </p>
-            </motion.div>
-          </div>
-        </motion.div>
-
-        {/* Add more detailed sections */}
-        <motion.div
-          className="mt-6"
-          initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.8 }}
-        >
-          <motion.h2
-            className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4"
-            initial={{ y: -10 }}
-            animate={{ y: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 20 }}
-          >
-            More About Me <span className="text-pink-400">♡</span>
-          </motion.h2>
-
-          <motion.div
-            className="divider mb-6"
-            initial={{ scaleX: 0 }}
-            animate={{ scaleX: 1 }}
-            transition={{ delay: 0.9 }}
-          />
-
-          <div className="space-y-4">
-            <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 1.0 }}
-            >
-              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
-                <span className="mr-2">🎨</span> Art Style
-              </h3>
-              <p className="text-sm text-pink-600 dark:text-pink-400">
-                I specialize in kawaii digital art with soft pastel colors. My style is inspired by anime and cute
-                character designs. I love adding small details that make each piece unique and full of personality!
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 1.1 }}
-            >
-              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
-                <span className="mr-2">🎮</span> Gaming Life
-              </h3>
-              <p className="text-sm text-pink-600 dark:text-pink-400">
-                I'm an avid gamer who loves RPGs and adventure games. Currently obsessed with Honkai Star Rail and
-                Genshin Impact! I stream occasionally and love connecting with other gamers who share similar interests.
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 1.2 }}
-            >
-              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
-                <span className="mr-2">✨</span> Future Goals
-              </h3>
-              <p className="text-sm text-pink-600 dark:text-pink-400">
-                I'm working towards publishing my own manga and creating a line of kawaii merchandise featuring my
-                original characters. I also hope to attend more conventions and connect with fans in person!
-              </p>
-            </motion.div>
-
-            <motion.div
-              className="bg-pink-50 dark:bg-[#2d2d42] p-4 rounded-xl"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 1.3 }}
-            >
-              <h3 className="text-sm font-bold text-pink-700 dark:text-pink-300 mb-2 flex items-center">
-                <span className="mr-2">💌</span> Contact & Commissions
-              </h3>
-              <p className="text-sm text-pink-600 dark:text-pink-400">
-                I'm currently open for art commissions! If you'd like custom artwork in my style, feel free to reach out
-                via email or my social media accounts. I typically respond within 48 hours and love discussing creative
-                projects!
+               Despite my MBTI is INFJ, I really love to make a lot of wall texts ESPECIALLY about things that I really like about! I also have a really good knowledge about my games, especially HSR, GI, and ZZZ! Don't mind me if I yap 24/7 about it, yAA!!
               </p>
             </motion.div>
           </div>

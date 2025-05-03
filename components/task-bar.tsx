@@ -26,6 +26,7 @@ import {
 import { motion, AnimatePresence } from "framer-motion"
 import { useMusicPlayer } from "@/hooks/use-music-player"
 import { MobileMenu } from "./mobile-menu"
+import { FavoritesListDropdown } from "@/components/favorites-list-dropdown"
 
 const pages = [
   { path: "/", label: "Home", icon: <Home className="w-4 h-4" /> },
@@ -45,7 +46,9 @@ export function TaskBar() {
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [reorderEnabled, setReorderEnabled] = useState(false)
   const [queueItems, setQueueItems] = useState<number[]>([])
+  const [showFavoritesList, setShowFavoritesList] = useState(false)
   const musicPlayerRef = useRef<HTMLDivElement>(null)
+  const favoritesButtonRef = useRef<HTMLButtonElement>(null)
 
   const {
     isPlaying,
@@ -130,28 +133,8 @@ export function TaskBar() {
     }
   }
 
-  const createHearts = () => {
-    for (let i = 0; i < 15; i++) {
-      const heart = document.createElement("div")
-      heart.className = "floating-heart"
-      heart.innerHTML = ["♥", "♡", "✿", "✨", "★"][Math.floor(Math.random() * 5)]
-
-      // Random position
-      heart.style.left = Math.random() * 100 + "vw"
-      heart.style.animationDuration = Math.random() * 3 + 2 + "s"
-      heart.style.fontSize = Math.random() * 20 + 10 + "px"
-
-      // Random color
-      const colors = ["#ffb6c1", "#ff8fab", "#ff66a3", "#ff4d94", "#ff3385"]
-      heart.style.color = colors[Math.floor(Math.random() * colors.length)]
-
-      document.body.appendChild(heart)
-
-      // Remove after animation
-      setTimeout(() => {
-        heart.remove()
-      }, 5000)
-    }
+  const toggleFavoritesList = () => {
+    setShowFavoritesList(!showFavoritesList)
   }
 
   const formatTime = (time: number) => {
@@ -253,17 +236,24 @@ export function TaskBar() {
               {/* Mobile Menu */}
               <MobileMenu />
 
-              <motion.button
-                className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
-                onClick={createHearts}
-                whileHover={{ scale: 1.1, rotate: 10 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Create hearts"
-                title="Spread kawaii hearts!"
-              >
-                <span className="text-lg">✿</span>
-              </motion.button>
+              {/* Favorites Button with Dropdown */}
+              <div className="relative">
+                <motion.button
+                  ref={favoritesButtonRef}
+                  className="taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
+                  onClick={toggleFavoritesList}
+                  whileHover={{ scale: 1.1, rotate: 10 }}
+                  whileTap={{ scale: 0.9 }}
+                  aria-label="Show favorites"
+                  title="Kesayangan Pien 💖💖"
+                >
+                  <span className="text-lg">✿</span>
+                </motion.button>
 
+                <FavoritesListDropdown isOpen={showFavoritesList} onClose={() => setShowFavoritesList(false)} />
+              </div>
+
+              {/* Music Player Button with Dropdown */}
               <div className="relative">
                 <motion.button
                   className={`taskbar-button p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400 ${isPlaying ? "text-pink-500 dark:text-pink-300" : ""}`}

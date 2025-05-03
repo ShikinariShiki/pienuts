@@ -90,11 +90,11 @@ export default function Home() {
           </motion.p>
         </div>
 
-        <div className="flex flex-col md:flex-row gap-6">
+        <div className="flex flex-col gap-8">
           <motion.div
-            className="md:w-1/2"
-            initial={{ x: -10, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
+            className="mx-auto w-full max-w-md"
+            initial={{ y: -10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.2 }}
           >
             <div
@@ -118,106 +118,118 @@ export default function Home() {
                 </div>
               </div>
             </div>
-
-            <Link href="/profile">
-              <motion.button
-                className="w-full button px-4 py-3 text-pink-600 dark:text-pink-300 font-medium flex items-center justify-center space-x-2"
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
-              >
-                <span>View Profile</span>
-                <span>♡</span>
-              </motion.button>
-            </Link>
           </motion.div>
 
           <motion.div
-            className="md:w-1/2"
-            initial={{ x: 10, opacity: 0 }}
-            animate={{ x: 0, opacity: 1 }}
+            className="w-full"
+            initial={{ y: 10, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.3 }}
           >
-            {/* Site Directory */}
             <motion.div
               className="h-full flex flex-col"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.4 }}
             >
-              <motion.h2
-                className="text-xl font-bold text-pink-600 dark:text-pink-300 mb-4"
+              <motion.div
+                className="text-center mb-4"
                 initial={{ y: -10 }}
                 animate={{ y: 0 }}
                 transition={{ type: "spring", stiffness: 300, damping: 20 }}
               >
-                Site Directory <span className="text-pink-400">♡</span>
-              </motion.h2>
+                <h2 className="text-xl font-bold text-pink-600 dark:text-pink-300">
+                  <span className="inline-block mx-1">✿</span>
+                  Site Directory
+                  <span className="inline-block mx-1">✿</span>
+                </h2>
+                <div className="w-24 h-1 bg-gradient-to-r from-transparent via-pink-400 to-transparent mx-auto mt-2"></div>
+              </motion.div>
 
-              <motion.div
-                className="divider mb-4"
-                initial={{ scaleX: 0 }}
-                animate={{ scaleX: 1 }}
-                transition={{ delay: 0.5 }}
-              />
+              <div className="space-y-6 flex-grow">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {[
+                    {
+                      path: "/profile",
+                      label: "Profile",
+                      icon: <User className="w-4 h-4" />,
+                      description: "View my profile",
+                      bgColor: "bg-gradient-to-r from-pink-200 to-pink-300",
+                      iconBg: "bg-white/70",
+                    },
+                    {
+                      path: "/dni",
+                      label: "DNI",
+                      icon: <X className="w-4 h-4" />,
+                      description: "Do Not Interact guidelines",
+                      bgColor: "bg-gradient-to-r from-pink-300 to-pink-400",
+                      iconBg: "bg-white/70",
+                    },
+                    {
+                      path: "/byf",
+                      label: "BYF",
+                      icon: <Heart className="w-4 h-4" />,
+                      description: "Before You Follow information",
+                      bgColor: "bg-gradient-to-r from-pink-200 to-pink-300",
+                      iconBg: "bg-white/70",
+                    },
+                    {
+                      path: "/favs",
+                      label: "FAVS",
+                      icon: <Star className="w-4 h-4" />,
+                      description: "My favorite things",
+                      bgColor: "bg-gradient-to-r from-pink-300 to-pink-400",
+                      iconBg: "bg-white/70",
+                    },
+                    {
+                      path: "/messages",
+                      label: "Messages",
+                      icon: <MessageSquare className="w-4 h-4" />,
+                      description: "Send and view messages",
+                      bgColor: "bg-gradient-to-r from-pink-200 to-pink-300",
+                      iconBg: "bg-white/70",
+                    },
+                    {
+                      path: "/gacha",
+                      label: "Daily Word",
+                      icon: <Gift className="w-4 h-4" />,
+                      description: "Get your word of affirmation",
+                      bgColor: "bg-gradient-to-r from-pink-300 to-pink-400",
+                      iconBg: "bg-white/70",
+                    },
+                  ].map((link, index) => (
+                    <Link href={link.path} key={link.path}>
+                      <motion.div
+                        className={`${link.bgColor} dark:bg-[#2d2d42] p-4 rounded-xl flex items-center gap-3 hover:shadow-lg transition-all relative overflow-hidden`}
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: 0.6 + index * 0.1 }}
+                        whileHover={{
+                          scale: 1.03,
+                          boxShadow: "0 10px 25px rgba(255, 102, 163, 0.3)",
+                        }}
+                        whileTap={{ scale: 0.98 }}
+                      >
+                        {/* Decorative elements */}
+                        <div className="absolute top-0 right-0 w-16 h-16 -mr-8 -mt-8 bg-white/10 rounded-full"></div>
+                        <div className="absolute bottom-0 left-0 w-8 h-8 -ml-4 -mb-4 bg-white/10 rounded-full"></div>
 
-              <div className="space-y-3 flex-grow">
-                {[
-                  {
-                    path: "/profile",
-                    label: "Profile",
-                    icon: <User className="w-4 h-4" />,
-                    description: "View my profile",
-                  },
-                  {
-                    path: "/dni",
-                    label: "DNI",
-                    icon: <X className="w-4 h-4" />,
-                    description: "Do Not Interact guidelines",
-                  },
-                  {
-                    path: "/byf",
-                    label: "BYF",
-                    icon: <Heart className="w-4 h-4" />,
-                    description: "Before You Follow information",
-                  },
-                  {
-                    path: "/favs",
-                    label: "FAVS",
-                    icon: <Star className="w-4 h-4" />,
-                    description: "My favorite things",
-                  },
-                  {
-                    path: "/messages",
-                    label: "Messages",
-                    icon: <MessageSquare className="w-4 h-4" />,
-                    description: "Send and view messages",
-                  },
-                  {
-                    path: "/gacha",
-                    label: "Daily Word",
-                    icon: <Gift className="w-4 h-4" />,
-                    description: "Get your word of affirmation",
-                  },
-                ].map((link, index) => (
-                  <Link href={link.path} key={link.path}>
-                    <motion.div
-                      className="bg-pink-50 dark:bg-[#2d2d42] p-3 rounded-xl flex items-center gap-3 hover:bg-pink-100 dark:hover:bg-[#3d3d5a] transition-colors"
-                      initial={{ opacity: 0, y: 10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.6 + index * 0.1 }}
-                      whileHover={{ scale: 1.02 }}
-                      whileTap={{ scale: 0.98 }}
-                    >
-                      <div className="bg-pink-200 dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0">
-                        <span className="text-pink-600 dark:text-pink-300">{link.icon}</span>
-                      </div>
-                      <div>
-                        <p className="font-medium text-pink-700 dark:text-pink-300">{link.label}</p>
-                        <p className="text-xs text-pink-500 dark:text-pink-400">{link.description}</p>
-                      </div>
-                    </motion.div>
-                  </Link>
-                ))}
+                        <div
+                          className={`${link.iconBg} dark:bg-pink-800/30 w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-md`}
+                        >
+                          <span className="text-pink-600 dark:text-pink-300">{link.icon}</span>
+                        </div>
+                        <div className="text-white dark:text-pink-100">
+                          <p className="font-medium">{link.label}</p>
+                          <p className="text-xs text-white/80 dark:text-pink-200">{link.description}</p>
+                        </div>
+
+                        {/* Small decorative heart */}
+                        <div className="absolute bottom-1 right-2 text-white/30 text-xs">♡</div>
+                      </motion.div>
+                    </Link>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </motion.div>
@@ -237,7 +249,7 @@ export default function Home() {
           transition={{ duration: 0.3, delay: 0.7 }}
         >
           <motion.a
-            href="https://x.com/advocasie"
+            href="https://twitter.com/advocasie"
             className="text-pink-600 dark:text-pink-400 hover:text-pink-400 dark:hover:text-pink-300 font-medium tooltip"
             target="_blank"
             whileHover={{ y: -3, scale: 1.2 }}
@@ -248,30 +260,25 @@ export default function Home() {
             <i className="fab fa-twitter text-xl"></i>
           </motion.a>
           <motion.a
-            href="#"
+            href="https://open.spotify.com/user/thiisprro"
             className="text-pink-600 dark:text-pink-400 hover:text-pink-400 dark:hover:text-pink-300 font-medium tooltip"
+            target="_blank"
             whileHover={{ y: -3, scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
+            rel="noreferrer"
           >
-            <span className="tooltiptext">My Instagram</span>
-            <i className="fab fa-instagram text-xl"></i>
+            <span className="tooltiptext">My Spotify</span>
+            <i className="fab fa-spotify text-xl"></i>
           </motion.a>
           <motion.a
-            href="#"
+            href="https://secreto.site/a7x8u7"
             className="text-pink-600 dark:text-pink-400 hover:text-pink-400 dark:hover:text-pink-300 font-medium tooltip"
+            target="_blank"
             whileHover={{ y: -3, scale: 1.2 }}
             whileTap={{ scale: 0.9 }}
+            rel="noreferrer"
           >
-            <span className="tooltiptext">My Art Station</span>
-            <i className="fas fa-palette text-xl"></i>
-          </motion.a>
-          <motion.a
-            href="#"
-            className="text-pink-600 dark:text-pink-400 hover:text-pink-400 dark:hover:text-pink-300 font-medium tooltip"
-            whileHover={{ y: -3, scale: 1.2 }}
-            whileTap={{ scale: 0.9 }}
-          >
-            <span className="tooltiptext">Contact Me</span>
+            <span className="tooltiptext">Send me a secret message</span>
             <i className="fas fa-envelope text-xl"></i>
           </motion.a>
         </motion.div>

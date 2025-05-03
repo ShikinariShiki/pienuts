@@ -84,19 +84,19 @@ export default function ByfPage() {
 
           <ul className="list-disc pl-6 space-y-2 text-pink-600 dark:text-pink-400">
             <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.5 }}>
-              Problematic
+              My account is #unlabeled, sometimes it can be anime, the other time it can be anything else (YANG MASIH AMAN YA!)
             </motion.li>
             <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.6 }}>
-              02 voter
+              I like to yap ALOT! dan bakal jbjb brutal jugaa if I'm feeling to do it!
             </motion.li>
             <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.7 }}>
-              Homophobic
+              Sometimes, I will use harsh words📵 for insulting and criticizing the gov 💭
             </motion.li>
             <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.8 }}>
-              Kalah 50/50 10
+              My EN is kinda broken and currently on a state of fixing it 🔮
             </motion.li>
             <motion.li initial={{ opacity: 0, x: -20 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: 0.9 }}>
-              Lorem ipsum dolor vincit amet tribie lucu bukan main
+              Will DM you for asking help or just simply greet you in the morning!
             </motion.li>
           </ul>
         </motion.div>
@@ -112,7 +112,7 @@ export default function ByfPage() {
           </h2>
 
           <p className="text-pink-600 dark:text-pink-400">
-            I post content about anime, games, and my art. If you're comfortable with that, feel free to follow! (◕‿◕✿)
+            If you're comfortable with all of that, feel free to follow! (◕‿◕✿)
           </p>
         </motion.div>
         <PageNavigation />
