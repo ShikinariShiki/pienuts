@@ -9,7 +9,7 @@ import { RefreshCw, Heart, Mail } from "lucide-react"
 
 // Words of affirmation
 const affirmations = [
-  "Your kindness toward others reflects the kindness you deserve.",
+  "Someone who lies often can't stand the people they've hurt, and just buttering people up leads to nothing but trouble.",
   "Do not make friends with a hot-tempered person. Hang around them enough, and you could pick up their bad habits and get yourself into a mess.",
   "Do not worry about tomorrow's struggle as each day has enough trouble of its own.",
   "Wise words bring many benefits, and hard work brings rewards.",
@@ -28,13 +28,13 @@ const affirmations = [
   "Don't answer the foolish arguments of fools, or you will become as foolish as they are.",
   "Don't act thoughtlessly and make the most of every opportunity in every moment in your life.",
   "Do not bother correcting those who mock you; they will only hate you. But correct those who cared about you, and they will love you forever with their life.",
-  "If you set a trap for others, you will get caught in it yourself. If you roll a boulder down on others, it will crush you instead.",
+  "Whoever digs a pit will fall into it. If someone rolls a stone, it will roll back on them.",
   "Never take revenge. Always do things in such a way that everyone can see you are honorable.",
-  "Let today be kind to you and let yourself be kind too.",
+  "Do not boast about tomorrow, for you do not know what a day may bring.",
   "Don't let evil conquer you, but conquer evil by doing good.",
   "If your heart is wise, my own heart will rejoice! Everything in me will celebrate when you speak what is right.",
   "Keep on asking, and you will receive what you ask for. Keep on seeking, and you will find anything you want.",
-  "You are safe to feel whatever you're feeling right now.",
+  "As water reflects the face,so one's life reflects the heart.",
   "Be happy with those who are happy, and weep with those who weep.",
   "The struggles in your life are no different from what others experience. When you are stuck, life will show you a way out so that you can endure through it.",
   "Not every thought needs an answer right away, don't be anxious about it.",
