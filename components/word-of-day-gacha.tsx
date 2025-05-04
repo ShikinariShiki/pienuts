@@ -10,7 +10,7 @@ import { RefreshCw, Heart, Mail } from "lucide-react"
 // Words of affirmation
 const affirmations = [
   "Your kindness toward others reflects the kindness you deserve.",
-  "Remember to always have courage and be kind.",
+  "Do not make friends with a hot-tempered person. Hang around them enough, and you could pick up their bad habits and get yourself into a mess.",
   "Do not worry about tomorrow's struggle as each day has enough trouble of its own.",
   "Wise words bring many benefits, and hard work brings rewards.",
   "A friend is always loyal, and a brother is born to help in time of need.",
@@ -22,7 +22,7 @@ const affirmations = [
   "Worry weighs a person down but an encouraging word cheers a person up.",
   "Watch your tongue and keep your mouth shut, and you will stay out of trouble.",
   "Do not judge others, and you will not be judged. Do not condemn others, or it will all come back against you.",
-  "An inheritance obtained too early in life is not a blessing in the end.",
+  "Guard your heart above all else, for it determines the course of your life.",
   "Whoever loves a pure heart and gracious speech will have the king as a friend.",
   "If you love sleep, you will end in laziness. Keep your eyes open, and there will be plenty things to enjoy.",
   "Don't answer the foolish arguments of fools, or you will become as foolish as they are.",
