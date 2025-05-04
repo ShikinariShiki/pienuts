@@ -6,41 +6,41 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { RefreshCw, Heart, Mail } from "lucide-react"
+import { useRouter } from "next/navigation"
 
 // Words of affirmation
 const affirmations = [
-  "Someone who lies often can't stand the people they've hurt, and just buttering people up leads to nothing but trouble.",
-  "Do not make friends with a hot-tempered person. Hang around them enough, and you could pick up their bad habits and get yourself into a mess.",
-  "Do not worry about tomorrow's struggle as each day has enough trouble of its own.",
-  "Wise words bring many benefits, and hard work brings rewards.",
-  "A friend is always loyal, and a brother is born to help in time of need.",
-  "To acquire wisdom is to love yourself; people who cherish understanding will prosper in their life.",
-  "Do not worry about everyday life, as it will be provided to you eventually.",
-  "There are 'friends' who destroy each other, but a real friend sticks closer than a brother.",
-  "Wise words are more valuable than much gold and many rubies.",
-  "A cheerful heart is good medicine, but a broken spirit saps a person's strength.",
-  "Worry weighs a person down but an encouraging word cheers a person up.",
-  "Watch your tongue and keep your mouth shut, and you will stay out of trouble.",
-  "Do not judge others, and you will not be judged. Do not condemn others, or it will all come back against you.",
-  "Guard your heart above all else, for it determines the course of your life.",
-  "Whoever loves a pure heart and gracious speech will have the king as a friend.",
-  "If you love sleep, you will end in laziness. Keep your eyes open, and there will be plenty things to enjoy.",
-  "Don't answer the foolish arguments of fools, or you will become as foolish as they are.",
-  "Don't act thoughtlessly and make the most of every opportunity in every moment in your life.",
-  "Do not bother correcting those who mock you; they will only hate you. But correct those who cared about you, and they will love you forever with their life.",
-  "Whoever digs a pit will fall into it. If someone rolls a stone, it will roll back on them.",
-  "Never take revenge. Always do things in such a way that everyone can see you are honorable.",
-  "Do not boast about tomorrow, for you do not know what a day may bring.",
-  "Don't let evil conquer you, but conquer evil by doing good.",
-  "If your heart is wise, my own heart will rejoice! Everything in me will celebrate when you speak what is right.",
-  "Keep on asking, and you will receive what you ask for. Keep on seeking, and you will find anything you want.",
-  "As water reflects the face,so one's life reflects the heart.",
-  "Be happy with those who are happy, and weep with those who weep.",
-  "The struggles in your life are no different from what others experience. When you are stuck, life will show you a way out so that you can endure through it.",
-  "Not every thought needs an answer right away, don't be anxious about it.",
-  "Don't worry about anything; instead, pray about everything.",
-  "I know that you can do anything, and no one can stop you.",
-  "Do not envy evil people or desire their company. For their hearts plot violence, and their words always stir up trouble.",
+  "You are enough just as you are.",
+  "Your presence lights up every room you enter.",
+  "You are capable of amazing things.",
+  "Your kindness makes a difference.",
+  "You are stronger than you know.",
+  "Your potential is limitless.",
+  "You deserve all the good things coming your way.",
+  "Your smile brightens everyone's day.",
+  "You are worthy of love and respect.",
+  "Your efforts matter and are appreciated.",
+  "You bring unique gifts to the world.",
+  "You are making progress, even when you don't feel it.",
+  "Your voice deserves to be heard.",
+  "You inspire others more than you realize.",
+  "You are resilient and can overcome any challenge.",
+  "Your dreams are valid and achievable.",
+  "You are surrounded by love, even when you feel alone.",
+  "Your creativity knows no bounds.",
+  "You make the world a better place just by being you.",
+  "You are exactly where you need to be right now.",
+  "Your heart is pure and your intentions are beautiful.",
+  "You are allowed to take up space in this world.",
+  "Your feelings are valid and important.",
+  "You are becoming the person you've always wanted to be.",
+  "You are a masterpiece in progress.",
+  "Your courage is admirable.",
+  "You are deserving of rest and peace.",
+  "Your uniqueness is your superpower.",
+  "You are loved more than you know.",
+  "You are exactly who you're meant to be.",
+  "You radiate positive energy.",
 ]
 
 export function WordOfDayGacha() {
@@ -52,6 +52,7 @@ export function WordOfDayGacha() {
   const [showLetter, setShowLetter] = useState(false)
   const [isAnimating, setIsAnimating] = useState(false)
   const confettiRef = useRef<HTMLDivElement>(null)
+  const router = useRouter()
 
   // Check if we have a saved name on component mount
   useEffect(() => {
@@ -96,6 +97,15 @@ export function WordOfDayGacha() {
   // Handle name submission
   const handleSubmitName = () => {
     if (userName.trim()) {
+      // Check for secret name - make it case insensitive
+      if (userName.trim().toLowerCase() === "piechang goreng") {
+        // Store the secret in session storage to maintain access
+        sessionStorage.setItem("secretGalleryAccess", "true")
+        // Redirect to secret gallery
+        router.push("/secret-gallery")
+        return
+      }
+
       localStorage.setItem("wotd-username", userName.trim())
       setSavedUserName(userName.trim())
       setShowNameInput(false)
