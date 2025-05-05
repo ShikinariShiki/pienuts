@@ -45,17 +45,38 @@ const albums: Album[] = [
   },
   {
     id: "album-5",
-    title: "あの夢をなぞって (Tracing That Dream)",
-    artist: "YOASOBI",
-    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Ano_Yume_o_Nazotte_cover_art-X5zuiB5TIGONtQ7lpFSMgUiLJAiMN6.png",
-    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Ano%20Yume%20o%20Nazotte%20-%20YOASOBI-AxGF5WGQqvn48o5Z0YeRQFzWmA2vb0.mp3",
+    title: "Kumpul Bocah",
+    artist: "MALIQ & D'Essentials",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/kumpul%20BOCAH-uS4ZDV8VTSutADc3lalyX7c041sa5j.png",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Kumpul%20Bocah%20%28Original%20Soundtrack%20From%20%E2%80%9CJUMBO%29%20-%20Maliq%20%26%20D%27essentials-0wRxXdDSN7FVbogqIBDlAkI7DbZrd3.mp3",
   },
   {
     id: "album-6",
-    title: "HEAVEN AND",
-    artist: "Chase Atlantic",
-    coverArt: "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/image-TKvWG6brlXTORMwEgfiGsCuxyhiG9p.png",
-    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track3-hWNRxk4yTgOxp60Q31R850m5NNgmkd.mp3",
+    title: "115万キロのフィルム (115 Million Kilometer Film)",
+    artist: " Official Hige Dandism",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/115%20km-AOD6xLudXnHMv70NXgOTL1UJjyTAjY.png",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/115%E4%B8%87%E3%82%AD%E3%83%AD%E3%81%AE%E3%83%95%E3%82%A3%E3%83%AB%E3%83%A0%20-%20OFFICIAL%20HIGE%20DANDISM-MPnMMNwo4gFw8PDOPFDG2ITX4C0Uh9.mp3",
+  },
+   {
+    id: "album-7",
+    title: "luther",
+    artist: " Kendrick Lamar and SZA",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/luther-u83j9HPoNY56ilntxy0RgWsifq2KGE.png",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/luther%20-%20Kendrick%20Lamar-BtqrS5ipcQmfRFDUfbb2keCL105hG8.mp3",
+  },
+   {
+    id: "album-8",
+    title: "青い珊瑚礁(Aoi Sangoshou)",
+    artist: "Seiko Matsuda",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/aoi%20sangosho-vhC9oT00WLYFmfa1bjoSVxdeOC2eTT.jpg",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Aoi%20Sangosho%20-%20Seiko%20Matsuda-Adpo9OxVunjWIsv3jE74MuvGUYSGjV.mp3",
+  },
+   {
+    id: "album-9",
+    title: "the cutest pair",
+    artist: "Regina Song",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/image-OvpBhjrQynSHs7TCWNusqt589YChTp.png",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/the%20cutest%20pair%20-%20Regina%20Song-YAyQI5zbB6r1DEwGtYa7PTtAuBfwVU.mp3",
   },
 ]
 
@@ -150,7 +171,7 @@ export function MusicWall() {
     <div className="w-full">
       <div className="relative p-4 bg-[#f5f0e1] dark:bg-[#2d2d42] rounded-xl">
         <h3 className="text-center text-2xl font-bold mb-6 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 text-transparent bg-clip-text">
-          music wall
+          pien's favorite music!
         </h3>
 
         <div className="grid grid-cols-3 gap-4">
