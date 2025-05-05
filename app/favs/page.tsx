@@ -6,6 +6,8 @@ import { fetchFavsData } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { PageNavigation } from "@/components/page-navigation"
 import Image from "next/image"
+import { MusicWall } from "@/components/music-wall"
+import { FoodGallery } from "@/components/food-gallery"
 
 export default function FavsPage() {
   const [favsData, setFavsData] = useState<any>(null)
@@ -75,15 +77,6 @@ export default function FavsPage() {
     },
   ]
 
-  // Music data - specific songs
-  const music = [
-    { title: "From The Start", artist: "Laufey" },
-    { title: "Last Train at 25 O'Clock", artist: "Lamp" },
-    { title: "Weak", artist: "Fujii Kaze" },
-    { title: "luther", artist: "Kendrick Lamar and SZA" },
-    { title: "Tokai", artist: "Taeko Onuki" },
-  ]
-
   // Character data with real images from Vercel Blob
   const characters = [
     {
@@ -111,9 +104,6 @@ export default function FavsPage() {
       icon: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/lighter-2Hsf39peDXQCoEcsqulzhKKzrLS4GR.jpg",
     },
   ]
-
-  // Food data
-  const foods = ["Mi Goreng", "Pizza", "Dimsum Mentai", "Mi Ayam", "Strawberry Ice Cream"]
 
   return (
     <div className="min-h-screen flex items-center justify-center p-4 pt-8">
@@ -170,7 +160,7 @@ export default function FavsPage() {
           </div>
         </motion.section>
 
-        {/* Music Section */}
+        {/* Music Section - Using the new MusicWall component */}
         <motion.section
           className="mb-10"
           initial={{ y: 20, opacity: 0 }}
@@ -182,28 +172,7 @@ export default function FavsPage() {
             Music
           </h2>
 
-          <div className="bg-gradient-to-r from-pink-50 to-purple-50 dark:from-[#2d2d42] dark:to-[#3d3d52] p-5 rounded-xl shadow-sm">
-            <ul className="space-y-3">
-              {music.map((song, index) => (
-                <motion.li
-                  key={song.title}
-                  className="flex items-center bg-white dark:bg-[#1f1f2f] p-3 rounded-lg shadow-sm"
-                  initial={{ opacity: 0, x: -20 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: 0.7 + index * 0.1 }}
-                  whileHover={{ x: 5 }}
-                >
-                  <div className="w-8 h-8 bg-gradient-to-br from-pink-400 to-purple-400 rounded-full flex items-center justify-center text-white mr-3">
-                    <span className="text-xs">{index + 1}</span>
-                  </div>
-                  <div>
-                    <p className="font-medium text-pink-600 dark:text-pink-400">{song.title}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">{song.artist}</p>
-                  </div>
-                </motion.li>
-              ))}
-            </ul>
-          </div>
+          <MusicWall />
         </motion.section>
 
         {/* Characters Section */}
@@ -242,7 +211,7 @@ export default function FavsPage() {
           </div>
         </motion.section>
 
-        {/* Food Section */}
+        {/* Food Section - Using the new FoodGallery component */}
         <motion.section
           className="mb-6"
           initial={{ y: 20, opacity: 0 }}
@@ -254,20 +223,7 @@ export default function FavsPage() {
             Food
           </h2>
 
-          <div className="flex flex-wrap gap-3">
-            {foods.map((food, index) => (
-              <motion.div
-                key={food}
-                className="bg-gradient-to-r from-pink-100 to-pink-50 dark:from-[#3d3d52] dark:to-[#2d2d42] px-4 py-2 rounded-full shadow-sm"
-                initial={{ opacity: 0, scale: 0.8 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 1.1 + index * 0.1 }}
-                whileHover={{ scale: 1.05 }}
-              >
-                <span className="text-sm font-medium text-pink-600 dark:text-pink-400">{food}</span>
-              </motion.div>
-            ))}
-          </div>
+          <FoodGallery />
         </motion.section>
 
         <motion.div

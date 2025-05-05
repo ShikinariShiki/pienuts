@@ -3,7 +3,7 @@
 import type React from "react"
 
 import { useRef, useState, useEffect } from "react"
-import { RefreshCcw, Download } from "lucide-react"
+import { RefreshCcw, Download, Undo, Redo } from "lucide-react"
 import { motion } from "framer-motion"
 
 export function DrawingCanvas() {
@@ -16,6 +16,10 @@ export function DrawingCanvas() {
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [canvasInitialized, setCanvasInitialized] = useState(false)
+
+  // For undo/redo functionality
+  const [history, setHistory] = useState<string[]>([])
+  const [historyIndex, setHistoryIndex] = useState(-1)
 
   // Initialize canvas when component mounts
   useEffect(() => {
@@ -49,8 +53,72 @@ export function DrawingCanvas() {
       context.lineWidth = lineWidth
 
       setCanvasInitialized(true)
+
+      // Save initial state to history
+      saveToHistory()
     }, 100)
   }, [])
+
+  // Save current canvas state to history
+  const saveToHistory = () => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const currentState = canvas.toDataURL()
+
+    // If we're not at the end of the history, remove everything after current index
+    if (historyIndex < history.length - 1) {
+      setHistory(history.slice(0, historyIndex + 1))
+    }
+
+    // Add current state to history
+    setHistory((prevHistory) => [...prevHistory, currentState])
+    setHistoryIndex((prevIndex) => prevIndex + 1)
+  }
+
+  // Undo function
+  const handleUndo = () => {
+    if (historyIndex <= 0) return // Nothing to undo
+
+    const newIndex = historyIndex - 1
+    setHistoryIndex(newIndex)
+
+    // Load the previous state
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const context = canvas.getContext("2d")
+    if (!context) return
+
+    const img = new Image()
+    img.onload = () => {
+      context.clearRect(0, 0, canvas.width, canvas.height)
+      context.drawImage(img, 0, 0)
+    }
+    img.src = history[newIndex]
+  }
+
+  // Redo function
+  const handleRedo = () => {
+    if (historyIndex >= history.length - 1) return // Nothing to redo
+
+    const newIndex = historyIndex + 1
+    setHistoryIndex(newIndex)
+
+    // Load the next state
+    const canvas = canvasRef.current
+    if (!canvas) return
+
+    const context = canvas.getContext("2d")
+    if (!context) return
+
+    const img = new Image()
+    img.onload = () => {
+      context.clearRect(0, 0, canvas.width, canvas.height)
+      context.drawImage(img, 0, 0)
+    }
+    img.src = history[newIndex]
+  }
 
   // Update drawing styles when color or line width changes WITHOUT clearing canvas
   useEffect(() => {
@@ -163,6 +231,8 @@ export function DrawingCanvas() {
   }
 
   const stopDrawing = () => {
+    if (!isDrawing) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -171,6 +241,9 @@ export function DrawingCanvas() {
 
     context.closePath()
     setIsDrawing(false)
+
+    // Save state to history after drawing is complete
+    saveToHistory()
   }
 
   // Touch event handlers
@@ -213,6 +286,8 @@ export function DrawingCanvas() {
 
   const handleTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault() // Prevent scrolling
+    if (!isDrawing) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -221,6 +296,9 @@ export function DrawingCanvas() {
 
     context.closePath()
     setIsDrawing(false)
+
+    // Save state to history after drawing is complete
+    saveToHistory()
   }
 
   // Clear canvas
@@ -234,6 +312,9 @@ export function DrawingCanvas() {
     // Fill with white background
     context.fillStyle = "#FFFFFF"
     context.fillRect(0, 0, canvas.width, canvas.height)
+
+    // Save the cleared state to history
+    saveToHistory()
   }
 
   // Send drawing
@@ -352,15 +433,39 @@ export function DrawingCanvas() {
   return (
     <div className="flex flex-col w-full">
       <div className="flex items-center justify-between bg-white p-3 rounded-t-xl border-2 border-pink-500">
-        <motion.button
-          onClick={clearCanvas}
-          className="p-2 rounded-full hover:bg-gray-100 transition-colors"
-          aria-label="Clear"
-          whileHover={{ scale: 1.1 }}
-          whileTap={{ scale: 0.9 }}
-        >
-          <RefreshCcw size={20} className="text-pink-500" />
-        </motion.button>
+        <div className="flex items-center gap-2">
+          <motion.button
+            onClick={clearCanvas}
+            className="p-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Clear"
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.9 }}
+          >
+            <RefreshCcw size={20} className="text-pink-500" />
+          </motion.button>
+
+          <motion.button
+            onClick={handleUndo}
+            disabled={historyIndex <= 0}
+            className={`p-2 rounded-full hover:bg-gray-100 transition-colors ${historyIndex <= 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+            aria-label="Undo"
+            whileHover={historyIndex > 0 ? { scale: 1.1 } : {}}
+            whileTap={historyIndex > 0 ? { scale: 0.9 } : {}}
+          >
+            <Undo size={20} className="text-pink-500" />
+          </motion.button>
+
+          <motion.button
+            onClick={handleRedo}
+            disabled={historyIndex >= history.length - 1}
+            className={`p-2 rounded-full hover:bg-gray-100 transition-colors ${historyIndex >= history.length - 1 ? "opacity-50 cursor-not-allowed" : ""}`}
+            aria-label="Redo"
+            whileHover={historyIndex < history.length - 1 ? { scale: 1.1 } : {}}
+            whileTap={historyIndex < history.length - 1 ? { scale: 0.9 } : {}}
+          >
+            <Redo size={20} className="text-pink-500" />
+          </motion.button>
+        </div>
 
         <div className="flex items-center gap-2">
           <input
@@ -401,13 +506,13 @@ export function DrawingCanvas() {
         <motion.button
           onClick={handleSend}
           disabled={isSaving}
-          className="bg-pink-500 hover:bg-pink-600 text-white font-medium text-lg flex items-center gap-2 py-3 px-6 rounded-xl shadow-md"
-          whileHover={{ scale: 1.05 }}
-          whileTap={{ scale: 0.95 }}
+          className="bg-white hover:bg-pink-500 text-pink-500 hover:text-white font-medium text-lg flex items-center justify-center gap-2 py-3 px-6 rounded-xl shadow-md border-2 border-pink-500 w-full transition-colors duration-300"
+          whileHover={{ scale: 1.02 }}
+          whileTap={{ scale: 0.98 }}
         >
           {isSaving ? (
             <>
-              <span className="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full mr-2"></span>
+              <span className="animate-spin h-5 w-5 border-2 border-pink-500 border-t-transparent rounded-full mr-2"></span>
               Sending...
             </>
           ) : (

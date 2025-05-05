@@ -183,9 +183,9 @@ export default function Home() {
                     },
                     {
                       path: "/messages",
-                      label: "Messages",
+                      label: "Connect",
                       icon: <MessageSquare className="w-4 h-4" />,
-                      description: "Send and view messages",
+                      description: "Send messages & drawings",
                       bgColor: "bg-gradient-to-r from-pink-200 to-pink-300",
                       iconBg: "bg-white/70",
                     },
