@@ -78,6 +78,27 @@ const albums: Album[] = [
     coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/image-OvpBhjrQynSHs7TCWNusqt589YChTp.png",
     audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/the%20cutest%20pair%20-%20Regina%20Song-YAyQI5zbB6r1DEwGtYa7PTtAuBfwVU.mp3",
   },
+    {
+    id: "album-10",
+    title: "Garden",
+    artist: " Fujii Kaze",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/garden-Z3JduTVLQpXFXdwp4A0T7HkNFgc9tz.jpeg",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Garden%20-%20Fujii%20Kaze-ihkvMumTtAIct3H9Z255vGPrHi2cAd.mp3",
+  },
+   {
+    id: "album-11",
+    title: "Supernatural",
+    artist: "NewJeans",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Supernatural_Cover-SQQHXUNdkKUge1gMBZBrHScsDBAuaZ.png",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Supernatural%20-%20NewJeans-wMSPDmcQdW04eA2p69MQHojJxwbVWz.mp3",
+  },
+   {
+    id: "album-12",
+    title: "Juna",
+    artist: "Clairo",
+    coverArt: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/image%20juna%20clairo-bseuVwYjDICAErQW6zhISvCk3F1sVB.png",
+    audioSrc: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/Juna%20-%20Clairo-Qau4vUktt630WLVtcqVBTY0tOJ39vj.mp3",
+  },
 ]
 
 export function MusicWall() {
