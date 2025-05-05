@@ -14,60 +14,48 @@ export function DrawingCanvas() {
   const [showSaveScreen, setShowSaveScreen] = useState(false)
   const [drawingData, setDrawingData] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
+  const [error, setError] = useState<string | null>(null)
+  const [canvasInitialized, setCanvasInitialized] = useState(false)
 
   // Initialize canvas when component mounts
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
 
-    const context = canvas.getContext("2d")
-    if (!context) return
-
-    // Set canvas size explicitly
-    canvas.width = canvas.offsetWidth
-    canvas.height = canvas.offsetHeight
-
-    // Fill with white background
-    context.fillStyle = "#FFFFFF"
-    context.fillRect(0, 0, canvas.width, canvas.height)
-
-    // Set initial drawing styles
-    context.lineCap = "round"
-    context.lineJoin = "round"
-    context.strokeStyle = color
-    context.lineWidth = lineWidth
-
-    // Handle window resize
-    const handleResize = () => {
+    // Wait for the canvas to be properly sized by the browser
+    setTimeout(() => {
+      const context = canvas.getContext("2d")
       if (!context) return
 
-      // Save current drawing
-      const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
-
-      // Resize canvas
-      canvas.width = canvas.offsetWidth
-      canvas.height = canvas.offsetHeight
+      // Set canvas size explicitly based on container size
+      const container = canvas.parentElement
+      if (container) {
+        canvas.width = container.clientWidth
+        canvas.height = 500 // Fixed height
+      } else {
+        // Fallback sizes if no parent container
+        canvas.width = 800
+        canvas.height = 500
+      }
 
       // Fill with white background
       context.fillStyle = "#FFFFFF"
       context.fillRect(0, 0, canvas.width, canvas.height)
 
-      // Restore drawing
-      context.putImageData(imageData, 0, 0)
-
-      // Reset context properties (they get reset after resize)
+      // Set initial drawing styles
       context.lineCap = "round"
       context.lineJoin = "round"
       context.strokeStyle = color
       context.lineWidth = lineWidth
-    }
 
-    window.addEventListener("resize", handleResize)
-    return () => window.removeEventListener("resize", handleResize)
+      setCanvasInitialized(true)
+    }, 100)
   }, [])
 
   // Update drawing styles when color or line width changes WITHOUT clearing canvas
   useEffect(() => {
+    if (!canvasInitialized) return
+
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -77,7 +65,64 @@ export function DrawingCanvas() {
     // Just update the style properties without clearing
     context.strokeStyle = color
     context.lineWidth = lineWidth
-  }, [color, lineWidth])
+  }, [color, lineWidth, canvasInitialized])
+
+  // Handle window resize safely
+  useEffect(() => {
+    if (!canvasInitialized) return
+
+    const handleResize = () => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+
+      const context = canvas.getContext("2d")
+      if (!context) return
+
+      // Only proceed if canvas has valid dimensions
+      if (canvas.width > 0 && canvas.height > 0) {
+        try {
+          // Save current drawing
+          const imageData = context.getImageData(0, 0, canvas.width, canvas.height)
+
+          // Get new dimensions
+          const container = canvas.parentElement
+          const newWidth = container ? container.clientWidth : 800
+          const newHeight = 500 // Keep fixed height
+
+          // Resize canvas
+          canvas.width = newWidth
+          canvas.height = newHeight
+
+          // Fill with white background
+          context.fillStyle = "#FFFFFF"
+          context.fillRect(0, 0, canvas.width, canvas.height)
+
+          // Restore drawing
+          context.putImageData(imageData, 0, 0)
+
+          // Reset context properties (they get reset after resize)
+          context.lineCap = "round"
+          context.lineJoin = "round"
+          context.strokeStyle = color
+          context.lineWidth = lineWidth
+        } catch (error) {
+          console.error("Error during canvas resize:", error)
+          // If there's an error, just reset the canvas
+          canvas.width = canvas.parentElement ? canvas.parentElement.clientWidth : 800
+          canvas.height = 500
+          context.fillStyle = "#FFFFFF"
+          context.fillRect(0, 0, canvas.width, canvas.height)
+          context.lineCap = "round"
+          context.lineJoin = "round"
+          context.strokeStyle = color
+          context.lineWidth = lineWidth
+        }
+      }
+    }
+
+    window.addEventListener("resize", handleResize)
+    return () => window.removeEventListener("resize", handleResize)
+  }, [color, lineWidth, canvasInitialized])
 
   // Mouse event handlers
   const startDrawing = (e: React.MouseEvent<HTMLCanvasElement>) => {
@@ -196,36 +241,44 @@ export function DrawingCanvas() {
     if (!canvasRef.current) return
 
     setIsSaving(true)
+    setError(null)
 
     try {
       // Save the drawing data
       const imgData = canvasRef.current.toDataURL("image/png")
       setDrawingData(imgData)
 
-      // Create a unique nickname like "sayang1", "sayang2", etc.
-      const randomNum = Math.floor(Math.random() * 1000) + 1
-      const nickname = `sayang${randomNum}`
-
       // Try to save to database
       const formData = new FormData()
       formData.append("drawingData", imgData)
-      formData.append("nickname", nickname)
-      formData.append("message", "")
 
       // Send to API
-      await fetch("/api/save-drawing", {
-        method: "POST",
-        body: formData,
-      })
+      try {
+        const response = await fetch("/api/save-drawing", {
+          method: "POST",
+          body: formData,
+        })
 
-      // Show success screen regardless of API success
-      // This way the user experience is smooth even if the database fails
+        const result = await response.json()
+
+        if (!result.success) {
+          console.error("Error saving drawing:", result.error)
+          setError(result.error || "Failed to save drawing to gallery")
+        }
+      } catch (err) {
+        console.error("Network error:", err)
+        setError(err instanceof Error ? err.message : "Network error when saving drawing")
+      }
+
+      // Show success screen regardless of backend success
+      setShowSaveScreen(true)
     } catch (error) {
       console.error("Error saving drawing:", error)
+      setError(error instanceof Error ? error.message : "Failed to save drawing")
       // We still show the success screen to the user
+      setShowSaveScreen(true)
     } finally {
       setIsSaving(false)
-      setShowSaveScreen(true)
     }
   }
 
@@ -246,6 +299,7 @@ export function DrawingCanvas() {
     clearCanvas()
     setShowSaveScreen(false)
     setDrawingData(null)
+    setError(null)
   }
 
   if (showSaveScreen) {
@@ -277,6 +331,13 @@ export function DrawingCanvas() {
             </span>
           </div>
         </div>
+        {error && (
+          <div className="mt-2 text-red-500 text-sm text-center p-2 bg-red-50 rounded-lg">
+            <p>Note: There was an issue saving to the gallery, but your drawing is still available to download.</p>
+            <p className="text-xs mt-1">Error: {error}</p>
+            <p className="text-xs mt-1">Please make sure the drawings table exists in your Supabase database.</p>
+          </div>
+        )}
         <motion.button
           onClick={handleReset}
           className="mt-4 text-pink-500 underline text-sm mx-auto"
@@ -321,20 +382,20 @@ export function DrawingCanvas() {
         </div>
       </div>
 
-      <canvas
-        ref={canvasRef}
-        width={800}
-        height={500}
-        onMouseDown={startDrawing}
-        onMouseMove={draw}
-        onMouseUp={stopDrawing}
-        onMouseLeave={stopDrawing}
-        onTouchStart={handleTouchStart}
-        onTouchMove={handleTouchMove}
-        onTouchEnd={handleTouchEnd}
-        className="border-l-2 border-r-2 border-pink-500 bg-white w-full h-[500px]"
-        style={{ touchAction: "none", cursor: "crosshair" }}
-      />
+      <div className="border-l-2 border-r-2 border-pink-500 bg-white w-full h-[500px]">
+        <canvas
+          ref={canvasRef}
+          onMouseDown={startDrawing}
+          onMouseMove={draw}
+          onMouseUp={stopDrawing}
+          onMouseLeave={stopDrawing}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          className="w-full h-full"
+          style={{ touchAction: "none", cursor: "crosshair" }}
+        />
+      </div>
 
       <div className="flex items-center justify-center bg-white p-4 rounded-b-xl border-2 border-t-0 border-pink-500">
         <motion.button

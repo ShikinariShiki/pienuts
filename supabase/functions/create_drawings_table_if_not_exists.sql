@@ -14,8 +14,6 @@ BEGIN
     CREATE TABLE public.drawings (
       id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
       drawing_data TEXT NOT NULL,
-      nickname TEXT DEFAULT 'Anonymous',
-      message TEXT,
       created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
     );
 

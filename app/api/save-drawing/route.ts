@@ -18,39 +18,39 @@ export async function POST(request: Request) {
 
     if (!supabaseUrl || !supabaseAnonKey) {
       console.error("Missing Supabase environment variables")
-      // Return success anyway to not disrupt user experience
-      return NextResponse.json({ success: true })
+      return NextResponse.json({ success: false, error: "Missing database configuration" })
     }
 
     const supabase = createClient(supabaseUrl, supabaseAnonKey)
 
-    // Try to insert the drawing with a timeout
-    const insertPromise = supabase.from("drawings").insert([
-      {
-        drawing_data: drawingData,
-        nickname,
-        message,
-        created_at: new Date().toISOString(),
-      },
-    ])
-
-    // Create a timeout promise
-    const timeoutPromise = new Promise((_, reject) => {
-      setTimeout(() => reject(new Error("Database request timed out")), 5000)
+    // Try to insert the drawing
+    const { error } = await supabase.from("drawings").insert({
+      drawing_data: drawingData,
+      nickname,
+      message,
+      created_at: new Date().toISOString(),
     })
 
-    // Race between insert and timeout
-    await Promise.race([
-      insertPromise,
-      timeoutPromise.then(() => {
-        throw new Error("Timeout")
-      }),
-    ])
+    if (error) {
+      console.error("Error inserting drawing:", error)
+
+      // If the error is that the table doesn't exist, return a specific message
+      if (error.message && error.message.includes("does not exist")) {
+        return NextResponse.json({
+          success: false,
+          error: "The drawings table doesn't exist. Please create it using the SQL provided.",
+        })
+      }
+
+      return NextResponse.json({ success: false, error: error.message })
+    }
 
     return NextResponse.json({ success: true })
   } catch (error) {
     console.error("Error saving drawing:", error)
-    // Return success anyway to not disrupt user experience
-    return NextResponse.json({ success: true })
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error saving drawing",
+    })
   }
 }
