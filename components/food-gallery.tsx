@@ -11,34 +11,40 @@ type FoodItem = {
 
 const foodItems: FoodItem[] = [
   {
-    name: "Mi Goreng",
+    name: "Fried Noodle",
     image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=300&width=300",
+      "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/food/mi%20goreng-bay2vsjuepDb8cbTZ1hcFV8FcPziDS.png?height=300&width=300",
     description: "Indonesian fried noodles with a perfect blend of sweet, savory, and spicy flavors.",
   },
   {
     name: "Pizza",
     image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=300&width=300",
+      "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/food/pizza-lV9Cr1nKYPje4xyzO6LpcSzTdi55jv.png?height=300&width=300",
     description: "Classic comfort food with endless topping possibilities.",
   },
   {
     name: "Dimsum Mentai",
     image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=300&width=300",
+      "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/food/mentai-CtVw2qk8iqRhXTtzvzeCc4ktdJlswK.jpg?height=300&width=300",
     description: "Delicate dumplings topped with creamy, spicy mentaiko sauce.",
   },
   {
     name: "Mi Ayam",
     image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=300&width=300",
+      "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/food/mi%20ayam-bWwb64tY8ZMfKkcTZxkmm8OCM5vyPA.png?height=300&width=300",
     description: "Indonesian chicken noodles with savory broth and tender chicken pieces.",
   },
   {
     name: "Strawberry Ice Cream",
     image:
-      "https://hebbkx1anhila5yf.public.blob.vercel-storage.com/placeholder-ob7miW3mUreePYfXdVwkpFWHthzoR5.svg?height=300&width=300",
+      "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/food/strawberry%20eskrim-1Y3lcoZBf1Dbvy3mvJm3YF29OCGylj.png?height=300&width=300",
     description: "Sweet, creamy frozen treat with fresh strawberry flavor.",
+  },
+  {
+    name: "Japanese Curry",
+    image:
+      "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/Lagu/food/curry-d66Gha3A3PufE1evT6Q6tHiXNAL58x.png?height=300&width=300",
+    description: "Thick, savory curry combined with warm, delicate white rice with various condiments.",
   },
 ]
 
