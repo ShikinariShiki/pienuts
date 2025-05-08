@@ -1,22 +1,12 @@
 "use client"
 
-import type React from "react"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
-import { Menu, X } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
+import { Menu, X, Home, User, Heart, Star, MessageSquare, Gift } from "lucide-react"
 
-interface MobileMenuProps {
-  pages: {
-    path: string
-    label: string
-    icon: React.ReactNode
-  }[]
-}
-
-export function MobileMenu({ pages }: MobileMenuProps) {
+export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false)
   const pathname = usePathname()
 
@@ -24,76 +14,109 @@ export function MobileMenu({ pages }: MobileMenuProps) {
     setIsOpen(!isOpen)
   }
 
+  const closeMenu = () => {
+    setIsOpen(false)
+  }
+
+  // Lock scroll when menu is open
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = ""
+    }
+    return () => {
+      document.body.style.overflow = ""
+    }
+  }, [isOpen])
+
+  // Menu items
+  const menuItems = [
+    { path: "/", label: "Home", icon: <Home className="w-5 h-5" /> },
+    { path: "/profile", label: "Profile", icon: <User className="w-5 h-5" /> },
+    { path: "/dni", label: "DNI", icon: <X className="w-5 h-5" /> },
+    { path: "/byf", label: "BYF", icon: <Heart className="w-5 h-5" /> },
+    { path: "/favs", label: "FAVS", icon: <Star className="w-5 h-5" /> },
+    { path: "/messages", label: "Messages", icon: <MessageSquare className="w-5 h-5" /> },
+    { path: "/gacha", label: "Word of The Day", icon: <Gift className="w-5 h-5" /> },
+  ]
+
   return (
-    <div className="md:hidden">
-      <motion.button
-        className="p-1.5 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-600 dark:text-pink-400"
+    <>
+      {/* Hamburger Button */}
+      <button
+        className="md:hidden p-2 text-pink-600 dark:text-pink-400 focus:outline-none"
         onClick={toggleMenu}
-        whileHover={{ scale: 1.1 }}
-        whileTap={{ scale: 0.9 }}
         aria-label="Menu"
       >
-        <Menu className="w-5 h-5" />
-      </motion.button>
+        <Menu className="w-6 h-6" />
+      </button>
 
       <AnimatePresence>
         {isOpen && (
-          <motion.div
-            className="fixed inset-0 z-50 bg-pink-50/95 dark:bg-[#16213e]/95 backdrop-blur-sm flex flex-col"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="flex justify-end p-4">
-              <motion.button
-                className="p-2 rounded-full bg-white dark:bg-[#2d2d42] text-pink-600 dark:text-pink-400 shadow-md"
-                onClick={toggleMenu}
-                whileHover={{ scale: 1.1, rotate: 90 }}
-                whileTap={{ scale: 0.9 }}
-                aria-label="Close menu"
-              >
-                <X className="w-5 h-5" />
-              </motion.button>
-            </div>
+          <>
+            {/* Overlay Background with pink transparent color */}
+            <motion.div
+              className="fixed inset-0 bg-pink-500/40 z-40"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              onClick={closeMenu}
+            />
 
-            <div className="flex-1 flex flex-col items-center justify-center p-4 space-y-4 overflow-y-auto max-h-[80vh]">
-              {pages.map((page, index) => (
-                <motion.div
-                  key={page.path}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.05 }}
-                  className="w-full"
+            {/* Menu Panel with glassmorphism effect - IMPORTANT: changed from inset-0 to top-12 to preserve header */}
+            <motion.div
+              className="fixed top-12 inset-x-0 bottom-0 bg-white/90 dark:bg-[#16213e]/90 backdrop-blur-md z-40 flex flex-col h-[calc(100vh-3rem)]"
+              initial={{ x: "-100%" }}
+              animate={{ x: 0 }}
+              exit={{ x: "-100%" }}
+              transition={{ type: "spring", stiffness: 300, damping: 30 }}
+            >
+              {/* Header */}
+              <div className="flex justify-between items-center p-4 border-b border-pink-200 dark:border-pink-800/30 flex-shrink-0">
+                <span className="text-pink-600 dark:text-pink-400 font-bold text-lg">
+                  pien<span className="text-pink-400 dark:text-pink-300">!</span>
+                </span>
+                <button
+                  className="p-1 text-pink-600 dark:text-pink-400 focus:outline-none"
+                  onClick={closeMenu}
+                  aria-label="Close menu"
                 >
-                  <Link href={page.path} onClick={toggleMenu}>
-                    <motion.div
-                      className={`flex items-center gap-3 p-4 rounded-xl ${
-                        pathname === page.path
-                          ? "bg-pink-200 dark:bg-pink-800/30 text-pink-700 dark:text-pink-300"
-                          : "bg-white dark:bg-[#2d2d42] text-gray-700 dark:text-gray-300"
-                      } shadow-sm`}
-                      whileHover={{ scale: 1.03 }}
-                      whileTap={{ scale: 0.97 }}
-                    >
-                      <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
-                          pathname === page.path
-                            ? "bg-pink-300 dark:bg-pink-700 text-white"
-                            : "bg-pink-100 dark:bg-[#3d3d5a] text-pink-500 dark:text-pink-400"
+                  <X className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Navigation with scroll */}
+              <nav className="flex-grow p-6 overflow-y-auto">
+                <ul className="space-y-6">
+                  {menuItems.map((item) => (
+                    <li key={item.path}>
+                      <Link
+                        href={item.path}
+                        className={`flex items-center p-3 rounded-lg transition-colors text-lg ${
+                          pathname === item.path
+                            ? "bg-pink-100 dark:bg-[#2d2d42] text-pink-700 dark:text-pink-300"
+                            : "hover:bg-pink-50 dark:hover:bg-[#1a1a2e] text-gray-600 dark:text-gray-300"
                         }`}
+                        onClick={closeMenu}
                       >
-                        {page.icon}
-                      </div>
-                      <span className="font-medium">{page.label}</span>
-                    </motion.div>
-                  </Link>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
+                        <span className="mr-4">{item.icon}</span>
+                        {item.label}
+                        {pathname === item.path && (
+                          <motion.div
+                            className="ml-auto w-2 h-2 rounded-full bg-pink-400 dark:bg-pink-500"
+                            layoutId="activeMenuIndicator"
+                          />
+                        )}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </nav>
+            </motion.div>
+          </>
         )}
       </AnimatePresence>
-    </div>
+    </>
   )
 }
