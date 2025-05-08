@@ -41,10 +41,13 @@ type MusicPlayerContextType = {
   resetPlaylist: () => void // Reset playlist to original order
   crossfadeDuration: number
   setCrossfadeDuration: (duration: number) => void
+  currentPlaylist: string
+  setCurrentPlaylist: (playlist: string) => void
+  availablePlaylists: string[]
 }
 
-// Add unique IDs to songs for drag-and-drop functionality
-const originalSongs: Song[] = [
+// Playlist 1: Original songs
+const playlist1: Song[] = [
   {
     id: "song-1",
     title: "ユメの喫茶店 (Yume no Kissaten)",
@@ -93,108 +96,88 @@ const originalSongs: Song[] = [
     artist: "Tsundere Twintails",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track8-lgqHwe8ZI67oydia0AY2gtyRJ0YPKp.mp3",
   },
+]
+
+// Playlist 2: Lo-Fi/Study
+const playlist2: Song[] = [
   {
-    id: "song-9",
+    id: "lofi-1",
     title: "Bossa Break!",
     artist: "Frizk",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track9-FZsIlLkOslfPJCNIUMUKveuZldf0xI.mp3",
   },
   {
-    id: "song-10",
+    id: "lofi-2",
     title: "Shower duty",
     artist: "Meaningful Stone",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track10-hsMclXH5riT5VmZKX6tVESSxlYuBf7.mp3",
   },
   {
-    id: "song-11",
+    id: "lofi-3",
     title: "nero",
     artist: "フレネシ",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track11-urtJFDxw2AlfXZVJjV72FqDuIJACiB.mp3",
   },
   {
-    id: "song-12",
+    id: "lofi-4",
     title: "from the start",
     artist: "j1ggs",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track12-gRqfqofQCSoTCjA1pLnLATNijLaSmV.mp3",
   },
   {
-    id: "song-13",
+    id: "lofi-5",
     title: "the cat from ipanema",
     artist: "j1ggs",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track13-MTNQYyHAummXGrHxcQmsfto1LPlCj6.mp3",
   },
+]
+
+// Playlist 3: Nature/Ambient
+const playlist3: Song[] = [
   {
-    id: "song-14",
+    id: "nature-1",
     title: "silliest of them all",
     artist: "xylz",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track14-Fs3Ovlt5l4eiNDAqpJAdf90QPFBM0h.mp3",
   },
   {
-    id: "song-15",
+    id: "nature-2",
     title: "Falling Behind",
     artist: "Laufey",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track15-ZrcnI0c2Vvz4BvlY9fDjke50azgVxp.mp3",
   },
   {
-    id: "song-16",
+    id: "nature-3",
     title: "Patty no Theme",
     artist: "Satoru Kōsaki",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track16-rWNW1CluTgjARgiVI9GEfKe2bgMF5r.mp3",
   },
   {
-    id: "song-17",
+    id: "nature-4",
     title: "2:23 AM",
     artist: "しゃろう",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track17-6v9CiFHs3eLWi0YmGbydgBUFkOCFXV.mp3",
   },
   {
-    id: "song-18",
+    id: "nature-5",
     title: "Treat",
     artist: "Kyatto",
     src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track18-kb7vG1Ao3glrs1cZOnCAeKl5j5k88D.mp3",
   },
-  {
-    id: "song-19",
-    title: "silly willy",
-    artist: "yawn.",
-    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track19-j6lL1r2IziKjM2v3ge4TQJeXB8OVPB.mp3",
-  },
-  {
-    id: "song-20",
-    title: "U & I",
-    artist: "Seycara Orchestral",
-    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track20-L49EbPp30L55AjHLR5mpvxVcMsBFop.mp3",
-  },
-  {
-    id: "song-21",
-    title: "i love cats :3",
-    artist: "yawn.",
-    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track21-f8Tit5pzr6mRCZg2oGhiMQGvbxNJpE.mp3",
-  },
-  {
-    id: "song-22",
-    title: "Seashells",
-    artist: "Tsundere Twintails",
-    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track22-2AcZu9FJ2VSgGkvM3bwiohT8KGnTeS.mp3",
-  },
-  {
-    id: "song-23",
-    title: "Birds",
-    artist: "Tsundere Twintails",
-    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track23-WlqDGFp7EC58V7HXzR6y3TzP4iwwSa.mp3",
-  },
-  {
-    id: "song-24",
-    title: "七時の食事 (Chocolate Lemon)",
-    artist: "Mitsukiyo",
-    src: "https://xri1xbwynlfpuw7m.public.blob.vercel-storage.com/track1-R0VtvF2UZHaycrG1srAGW6vRP8OwXs.mp3",
-  },
 ]
+
+// Map playlists
+const playlists: Record<string, Song[]> = {
+  playlist1,
+  playlist2,
+  playlist3,
+}
 
 const MusicPlayerContext = createContext<MusicPlayerContextType | undefined>(undefined)
 
 export function MusicPlayerProvider({ children }: { children: React.ReactNode }) {
-  const [songs, setSongs] = useState<Song[]>([...originalSongs])
+  const [currentPlaylist, setCurrentPlaylist] = useState<string>("playlist1")
+  const [songs, setSongs] = useState<Song[]>([...playlists[currentPlaylist]])
   const [isPlaying, setIsPlaying] = useState(false)
   const [currentSongIndex, setCurrentSongIndex] = useState(0)
   const [volume, setVolume] = useState(0.7)
@@ -210,6 +193,7 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   const [isFirstLoad, setIsFirstLoad] = useState(true)
   const [nextAudioRef, setNextAudioRef] = useState<HTMLAudioElement | null>(null)
   const [crossfadeDuration, setCrossfadeDuration] = useState(3) // Default 3 seconds
+  const availablePlaylists = Object.keys(playlists)
 
   // Use a ref to store the audio element
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -241,16 +225,38 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
   // Function to reset playlist to original order
   const resetPlaylist = () => {
     const currentSong = songs[currentSongIndex]
-    setSongs([...originalSongs])
+    setSongs([...playlists[currentPlaylist]])
 
     // Find the index of the current song in the original playlist
-    const newIndex = originalSongs.findIndex((song) => song.id === currentSong.id)
+    const newIndex = playlists[currentPlaylist].findIndex((song) => song.id === currentSong.id)
     if (newIndex !== -1) {
       setCurrentSongIndex(newIndex)
     } else {
       setCurrentSongIndex(0)
     }
   }
+
+  // Effect to handle playlist changes
+  useEffect(() => {
+    // Save current playback state
+    const wasPlaying = isPlaying
+
+    // Update songs with the new playlist
+    setSongs([...playlists[currentPlaylist]])
+
+    // Reset to first song in the new playlist
+    setCurrentSongIndex(0)
+
+    // If audio exists and was playing, load and play the new song
+    if (audioRef.current && wasPlaying) {
+      audioRef.current.src = playlists[currentPlaylist][0].src
+      audioRef.current.load()
+      audioRef.current.play().catch((err) => {
+        console.error("Failed to play after playlist change:", err)
+        setIsPlaying(false)
+      })
+    }
+  }, [currentPlaylist])
 
   // Fade in function - SHORTENED DURATION
   const fadeIn = () => {
@@ -712,10 +718,13 @@ export function MusicPlayerProvider({ children }: { children: React.ReactNode })
         toggleMute,
         error,
         reorderSongs,
-        originalSongs,
+        originalSongs: playlists[currentPlaylist],
         resetPlaylist,
         crossfadeDuration,
         setCrossfadeDuration,
+        currentPlaylist,
+        setCurrentPlaylist,
+        availablePlaylists,
       }}
     >
       {children}
@@ -745,7 +754,7 @@ export function useMusicPlayer() {
       toggleShuffle: () => {},
       nextSong: () => {},
       prevSong: () => {},
-      songs: originalSongs,
+      songs: playlists.playlist1,
       setSongs: () => {},
       audioRef: { current: null },
       showQueue: false,
@@ -754,10 +763,13 @@ export function useMusicPlayer() {
       toggleMute: () => {},
       error: null,
       reorderSongs: () => {},
-      originalSongs,
+      originalSongs: playlists.playlist1,
       resetPlaylist: () => {},
       crossfadeDuration: 3,
       setCrossfadeDuration: () => {},
+      currentPlaylist: "playlist1",
+      setCurrentPlaylist: () => {},
+      availablePlaylists: Object.keys(playlists),
     }
   }
 

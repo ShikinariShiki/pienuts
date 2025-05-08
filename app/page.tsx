@@ -7,7 +7,7 @@ import { motion } from "framer-motion"
 import { fetchUserData } from "@/lib/api"
 import { LoadingSpinner } from "@/components/loading-spinner"
 import { FloatingHearts } from "@/components/floating-hearts"
-import { User, X, Heart, Star, MessageSquare, Gift } from "lucide-react"
+import { User, X, Heart, Star, MessageSquare, Gift, Users, Palette } from "lucide-react"
 import { PageNavigation } from "@/components/page-navigation"
 
 export default function Home() {
@@ -79,7 +79,7 @@ export default function Home() {
             Welcome to <span className="text-pink-400 dark:text-pink-200">pien's</span> kawaii caard!
           </motion.h1>
           <motion.p
-            className="text-gray-500 dark:text-gray-400"
+            className="text-gray-500 dark:text-gray-300"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.3, delay: 0.1 }}
@@ -185,8 +185,16 @@ export default function Home() {
                       path: "/messages",
                       label: "Connect",
                       icon: <MessageSquare className="w-4 h-4" />,
-                      description: "Send messages & drawings",
+                      description: "Send messages",
                       bgColor: "bg-gradient-to-r from-pink-200 to-pink-300",
+                      iconBg: "bg-white/70",
+                    },
+                    {
+                      path: "/draw",
+                      label: "Drawing Canvas",
+                      icon: <Palette className="w-4 h-4" />,
+                      description: "Create cute drawings",
+                      bgColor: "bg-gradient-to-r from-purple-300 to-pink-300",
                       iconBg: "bg-white/70",
                     },
                     {
@@ -195,6 +203,14 @@ export default function Home() {
                       icon: <Gift className="w-4 h-4" />,
                       description: "Get your word of affirmation",
                       bgColor: "bg-gradient-to-r from-pink-300 to-pink-400",
+                      iconBg: "bg-white/70",
+                    },
+                    {
+                      path: "/hall-of-fame",
+                      label: "Hall of Fame",
+                      icon: <Users className="w-4 h-4" />,
+                      description: "My favorite Twitter friends",
+                      bgColor: "bg-gradient-to-r from-purple-300 to-pink-300",
                       iconBg: "bg-white/70",
                     },
                   ].map((link, index) => (
@@ -221,11 +237,11 @@ export default function Home() {
                         </div>
                         <div className="text-white dark:text-pink-100">
                           <p className="font-medium">{link.label}</p>
-                          <p className="text-xs text-white/80 dark:text-pink-200">{link.description}</p>
+                          <p className="text-xs text-white/80 dark:text-pink-200/80">{link.description}</p>
                         </div>
 
                         {/* Small decorative heart */}
-                        <div className="absolute bottom-1 right-2 text-white/30 text-xs">♡</div>
+                        <div className="absolute bottom-1 right-2 text-white/30 dark:text-pink-200/30 text-xs">♡</div>
                       </motion.div>
                     </Link>
                   ))}

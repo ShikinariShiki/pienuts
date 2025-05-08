@@ -22,6 +22,11 @@ import {
   Volume2,
   VolumeX,
   Gift,
+  Calendar,
+  Palette,
+  Trophy,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { useMusicPlayer } from "@/hooks/use-music-player"
@@ -35,6 +40,8 @@ const pages = [
   { path: "/byf", label: "BYF", icon: <Heart className="w-4 h-4" /> },
   { path: "/favs", label: "FAVS", icon: <Star className="w-4 h-4" /> },
   { path: "/messages", label: "MSG", icon: <MessageSquare className="w-4 h-4" /> },
+  { path: "/draw", label: "Draw", icon: <Palette className="w-4 h-4" /> },
+  { path: "/hall-of-fame", label: "HOF", icon: <Trophy className="w-4 h-4" /> },
   { path: "/gacha", label: "WOTD", icon: <Gift className="w-4 h-4" /> },
 ]
 
@@ -42,13 +49,20 @@ export function TaskBar() {
   const pathname = usePathname()
   const [isDarkTheme, setIsDarkTheme] = useState(false)
   const [time, setTime] = useState("")
+  const [date, setDate] = useState("")
   const [showMusicPlayer, setShowMusicPlayer] = useState(false)
   const [showVolumeSlider, setShowVolumeSlider] = useState(false)
   const [reorderEnabled, setReorderEnabled] = useState(false)
   const [queueItems, setQueueItems] = useState<number[]>([])
   const [showFavoritesList, setShowFavoritesList] = useState(false)
+  const [showCalendar, setShowCalendar] = useState(false)
   const musicPlayerRef = useRef<HTMLDivElement>(null)
   const favoritesButtonRef = useRef<HTMLButtonElement>(null)
+  const calendarRef = useRef<HTMLDivElement>(null)
+  const timeRef = useRef<HTMLDivElement>(null)
+
+  const [currentMonth, setCurrentMonth] = useState(new Date().getMonth())
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear())
 
   const {
     isPlaying,
@@ -75,6 +89,9 @@ export function TaskBar() {
     resetPlaylist,
     crossfadeDuration,
     setCrossfadeDuration,
+    currentPlaylist,
+    setCurrentPlaylist,
+    availablePlaylists,
   } = useMusicPlayer()
 
   // Initialize queue items
@@ -99,18 +116,28 @@ export function TaskBar() {
       document.documentElement.classList.remove("dark")
     }
 
-    const updateTime = () => {
+    const updateDateTime = () => {
       const now = new Date()
       setTime(now.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }))
+      setDate(now.toLocaleDateString([], { weekday: "short", month: "short", day: "numeric", year: "numeric" }))
     }
 
-    updateTime()
-    const interval = setInterval(updateTime, 60000)
+    updateDateTime()
+    const interval = setInterval(updateDateTime, 60000)
 
     // Close music player when clicking outside
     const handleClickOutside = (event: MouseEvent) => {
       if (musicPlayerRef.current && !musicPlayerRef.current.contains(event.target as Node)) {
         setShowMusicPlayer(false)
+      }
+
+      if (
+        calendarRef.current &&
+        !calendarRef.current.contains(event.target as Node) &&
+        timeRef.current &&
+        !timeRef.current.contains(event.target as Node)
+      ) {
+        setShowCalendar(false)
       }
     }
 
@@ -135,6 +162,10 @@ export function TaskBar() {
 
   const toggleFavoritesList = () => {
     setShowFavoritesList(!showFavoritesList)
+  }
+
+  const toggleCalendar = () => {
+    setShowCalendar(!showCalendar)
   }
 
   const formatTime = (time: number) => {
@@ -181,6 +212,77 @@ export function TaskBar() {
 
     setQueueItems(newQueue)
   }
+
+  // Navigate to previous month
+  const prevMonth = () => {
+    if (currentMonth === 0) {
+      setCurrentMonth(11)
+      setCurrentYear(currentYear - 1)
+    } else {
+      setCurrentMonth(currentMonth - 1)
+    }
+  }
+
+  // Navigate to next month
+  const nextMonth = () => {
+    if (currentMonth === 11) {
+      setCurrentMonth(0)
+      setCurrentYear(currentYear + 1)
+    } else {
+      setCurrentMonth(currentMonth + 1)
+    }
+  }
+
+  // Navigate to previous year
+  const prevYear = () => {
+    setCurrentYear(currentYear - 1)
+  }
+
+  // Navigate to next year
+  const nextYear = () => {
+    setCurrentYear(currentYear + 1)
+  }
+
+  // Get current month calendar
+  const getCurrentMonthCalendar = () => {
+    // Use the state variables instead of current date
+    const today = new Date()
+    const currentDay = today.getDate()
+    const isCurrentMonth = today.getMonth() === currentMonth && today.getFullYear() === currentYear
+
+    // Get first day of month
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay()
+
+    // Get last day of month
+    const lastDay = new Date(currentYear, currentMonth + 1, 0).getDate()
+
+    const monthNames = [
+      "January",
+      "February",
+      "March",
+      "April",
+      "May",
+      "June",
+      "July",
+      "August",
+      "September",
+      "October",
+      "November",
+      "December",
+    ]
+    const dayNames = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"]
+
+    return {
+      monthName: monthNames[currentMonth],
+      year: currentYear,
+      days: Array.from({ length: lastDay }, (_, i) => i + 1),
+      firstDay,
+      currentDay: isCurrentMonth ? currentDay : null,
+      dayNames,
+    }
+  }
+
+  const calendar = getCurrentMonthCalendar()
 
   return (
     <>
@@ -234,7 +336,7 @@ export function TaskBar() {
 
             <div className="flex items-center space-x-3">
               {/* Mobile Menu */}
-              <MobileMenu />
+              <MobileMenu pages={pages} />
 
               {/* Favorites Button with Dropdown */}
               <div className="relative">
@@ -455,6 +557,34 @@ export function TaskBar() {
                           </div>
                         </div>
 
+                        {/* Playlist Selector */}
+                        <div className="mt-3 pt-3 border-t border-pink-100 dark:border-[#2d2d42]">
+                          <div className="flex justify-between items-center mb-2">
+                            <p className="text-xs font-medium text-pink-700 dark:text-pink-300">Current Playlist</p>
+                          </div>
+                          <div className="grid grid-cols-3 gap-2 mb-3">
+                            {availablePlaylists.map((playlist) => (
+                              <button
+                                key={playlist}
+                                onClick={() => setCurrentPlaylist(playlist)}
+                                className={`text-xs p-2 rounded-md transition-colors ${
+                                  currentPlaylist === playlist
+                                    ? "bg-pink-400 text-white"
+                                    : "bg-pink-100 dark:bg-[#2d2d42] text-pink-600 dark:text-pink-400 hover:bg-pink-200 dark:hover:bg-[#3d3d5a]"
+                                }`}
+                              >
+                                {playlist === "playlist1"
+                                  ? "J-Pop/K-Pop"
+                                  : playlist === "playlist2"
+                                    ? "Lo-Fi/Study"
+                                    : playlist === "playlist3"
+                                      ? "Nature"
+                                      : playlist}
+                              </button>
+                            ))}
+                          </div>
+                        </div>
+
                         <div className="mt-3 pt-3 border-t border-pink-100 dark:border-[#2d2d42]">
                           <div className="flex justify-between items-center mb-2">
                             <p className="text-xs font-medium text-pink-700 dark:text-pink-300">Queue</p>
@@ -559,9 +689,102 @@ export function TaskBar() {
                 {isDarkTheme ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
               </motion.button>
 
-              <div className="taskbar-time text-xs text-pink-600 dark:text-pink-400 font-medium hidden sm:block">
+              <div
+                ref={timeRef}
+                className="taskbar-time text-xs text-pink-600 dark:text-pink-400 font-medium hidden sm:block cursor-pointer hover:text-pink-500 dark:hover:text-pink-300"
+                onClick={toggleCalendar}
+              >
                 {time}
               </div>
+
+              {/* Calendar Popup */}
+              <AnimatePresence>
+                {showCalendar && (
+                  <motion.div
+                    ref={calendarRef}
+                    className="absolute right-4 top-full mt-2 bg-white dark:bg-[#16213e] rounded-xl shadow-lg overflow-hidden border-2 border-pink-200 dark:border-pink-800/30 w-64"
+                    initial={{ opacity: 0, y: -10, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.95 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    <div className="p-3">
+                      <div className="mb-3">
+                        <div className="flex items-center justify-between mb-2">
+                          <div className="flex items-center">
+                            <button
+                              onClick={prevYear}
+                              className="p-1 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-500 dark:text-pink-400"
+                            >
+                              <ChevronLeft className="w-3 h-3" />
+                              <ChevronLeft className="w-3 h-3 -ml-1" />
+                            </button>
+                            <span className="text-xs font-medium text-pink-700 dark:text-pink-300 mx-1">
+                              {calendar.year}
+                            </span>
+                            <button
+                              onClick={nextYear}
+                              className="p-1 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-500 dark:text-pink-400"
+                            >
+                              <ChevronRight className="w-3 h-3" />
+                              <ChevronRight className="w-3 h-3 -ml-1" />
+                            </button>
+                          </div>
+                          <div className="flex items-center">
+                            <Calendar className="w-4 h-4 text-pink-500 dark:text-pink-400 mr-1" />
+                            <span className="text-xs text-pink-500 dark:text-pink-400">{date}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center justify-between">
+                          <button
+                            onClick={prevMonth}
+                            className="p-1 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-500 dark:text-pink-400"
+                          >
+                            <ChevronLeft className="w-4 h-4" />
+                          </button>
+                          <h3 className="text-sm font-medium text-pink-700 dark:text-pink-300">{calendar.monthName}</h3>
+                          <button
+                            onClick={nextMonth}
+                            className="p-1 rounded-full hover:bg-pink-100 dark:hover:bg-[#2d2d42] text-pink-500 dark:text-pink-400"
+                          >
+                            <ChevronRight className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1 text-center mb-2">
+                        {calendar.dayNames.map((day) => (
+                          <div key={day} className="text-[10px] font-medium text-pink-500 dark:text-pink-400">
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+
+                      <div className="grid grid-cols-7 gap-1">
+                        {/* Empty cells for days before the first day of month */}
+                        {Array.from({ length: calendar.firstDay }).map((_, index) => (
+                          <div key={`empty-${index}`} className="h-6"></div>
+                        ))}
+
+                        {/* Calendar days */}
+                        {calendar.days.map((day) => (
+                          <div
+                            key={day}
+                            className={`h-6 w-6 flex items-center justify-center text-xs rounded-full mx-auto
+                              ${
+                                day === calendar.currentDay
+                                  ? "bg-pink-400 text-white font-medium"
+                                  : "text-gray-700 dark:text-gray-300 hover:bg-pink-100 dark:hover:bg-[#2d2d42] cursor-pointer"
+                              }`}
+                          >
+                            {day}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           </div>
         </div>
