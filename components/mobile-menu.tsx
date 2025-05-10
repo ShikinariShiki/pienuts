@@ -4,7 +4,7 @@ import { useState, useEffect } from "react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { motion, AnimatePresence } from "framer-motion"
-import { Menu, X, Home, User, Heart, Star, MessageSquare, Gift } from "lucide-react"
+import { Menu, X, Home, User, Heart, Star, MessageSquare, Palette, Trophy, Gift } from "lucide-react"
 
 export function MobileMenu() {
   const [isOpen, setIsOpen] = useState(false)
@@ -36,8 +36,10 @@ export function MobileMenu() {
     { path: "/profile", label: "Profile", icon: <User className="w-5 h-5" /> },
     { path: "/dni", label: "DNI", icon: <X className="w-5 h-5" /> },
     { path: "/byf", label: "BYF", icon: <Heart className="w-5 h-5" /> },
-    { path: "/favs", label: "FAVS", icon: <Star className="w-5 h-5" /> },
-    { path: "/messages", label: "Messages", icon: <MessageSquare className="w-5 h-5" /> },
+    { path: "/favs", label: "Favorites", icon: <Star className="w-5 h-5" /> },
+    { path: "/messages", label: "Secreto", icon: <MessageSquare className="w-5 h-5" /> },
+    { path: "/draw", label: "Draw", icon: <Palette className="w-5 h-5" /> },
+    { path: "/hall-of-fame", label: "Hall of Fame", icon: <Trophy className="w-5 h-5" /> },
     { path: "/gacha", label: "Word of The Day", icon: <Gift className="w-5 h-5" /> },
   ]
 
@@ -66,7 +68,7 @@ export function MobileMenu() {
 
             {/* Menu Panel with glassmorphism effect - IMPORTANT: changed from inset-0 to top-12 to preserve header */}
             <motion.div
-              className="fixed top-12 inset-x-0 bottom-0 bg-white/90 dark:bg-[#16213e]/90 backdrop-blur-md z-40 flex flex-col h-[calc(100vh-3rem)]"
+              className="fixed top-12 inset-x-0 bottom-0 bg-white/90 dark:bg-[#16213e]/90 backdrop-blur-md z-40 flex flex-col max-h-[calc(100vh-3rem)]"
               initial={{ x: "-100%" }}
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
@@ -87,8 +89,8 @@ export function MobileMenu() {
               </div>
 
               {/* Navigation with scroll */}
-              <nav className="flex-grow p-6 overflow-y-auto">
-                <ul className="space-y-6">
+              <nav className="flex-grow p-6 overflow-y-auto overscroll-contain">
+                <ul className="space-y-4 pb-16">
                   {menuItems.map((item) => (
                     <li key={item.path}>
                       <Link

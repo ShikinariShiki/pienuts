@@ -574,11 +574,11 @@ export function TaskBar() {
                                 }`}
                               >
                                 {playlist === "playlist1"
-                                  ? "J-Pop/K-Pop"
+                                  ? "Cinnamon"
                                   : playlist === "playlist2"
-                                    ? "Lo-Fi/Study"
+                                    ? "Raspberry"
                                     : playlist === "playlist3"
-                                      ? "Nature"
+                                      ? "Sunflower"
                                       : playlist}
                               </button>
                             ))}

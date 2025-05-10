@@ -20,7 +20,22 @@ export default function SecretGalleryPage() {
 
         // Fetch drawings from local API endpoint
         const response = await fetch("/api/get-drawings")
-        const data = await response.json()
+
+        // Check if the response is ok before trying to parse JSON
+        if (!response.ok) {
+          const errorText = await response.text()
+          throw new Error(`API error (${response.status}): ${errorText.substring(0, 100)}...`)
+        }
+
+        // Now try to parse the JSON
+        let data
+        try {
+          data = await response.json()
+        } catch (jsonError) {
+          throw new Error(
+            `Failed to parse response as JSON: ${jsonError instanceof Error ? jsonError.message : String(jsonError)}`,
+          )
+        }
 
         if (data.success && data.data) {
           // Filter out any sample/placeholder drawings

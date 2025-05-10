@@ -16,7 +16,7 @@ export async function GET() {
           error: "Database configuration error",
           data: [],
         },
-        { status: 200 },
+        { status: 500 },
       )
     }
 
@@ -41,14 +41,11 @@ export async function GET() {
         })
       }
 
-      return NextResponse.json(
-        {
-          success: false,
-          error: error.message,
-          data: [],
-        },
-        { status: 200 },
-      )
+      return NextResponse.json({
+        success: false,
+        error: error.message,
+        data: [],
+      })
     }
 
     return NextResponse.json({
@@ -57,13 +54,10 @@ export async function GET() {
     })
   } catch (error) {
     console.error("Error in GET drawings:", error)
-    return NextResponse.json(
-      {
-        success: false,
-        error: error instanceof Error ? error.message : "Unknown error",
-        data: [],
-      },
-      { status: 200 },
-    )
+    return NextResponse.json({
+      success: false,
+      error: error instanceof Error ? error.message : "Unknown error",
+      data: [],
+    })
   }
 }
